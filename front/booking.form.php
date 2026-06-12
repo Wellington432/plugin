@@ -30,15 +30,15 @@ if (isset($_POST['add'])) {
     Html::back();
 
 } elseif (isset($_POST['approve'])) {
-    // Aprovação: exige o direito específico.
-    Session::checkRight(Booking::$rightname, Booking::APPROVE);
+    // Aprovação: exige o direito específico (Booking::APPROVE = bitmask 32).
+    Session::checkRight("carbooking::booking", Booking::APPROVE);
     if ($booking->getFromDB((int) $_POST['id'])) {
         $booking->approve($_POST['comment_validation'] ?? '');
     }
     Html::back();
 
 } elseif (isset($_POST['reject'])) {
-    Session::checkRight(Booking::$rightname, Booking::APPROVE);
+    Session::checkRight("carbooking::booking", Booking::APPROVE);
     if ($booking->getFromDB((int) $_POST['id'])) {
         $booking->reject($_POST['comment_validation'] ?? '');
     }
@@ -67,7 +67,7 @@ if (isset($_POST['add'])) {
 } else {
     $ID = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
-    Session::checkRight(Booking::$rightname, READ);
+    Session::checkRight("carbooking::booking", READ);
 
     Html::header(
         Booking::getTypeName(2),

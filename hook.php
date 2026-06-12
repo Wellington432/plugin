@@ -168,18 +168,24 @@ function plugin_carbooking_post_profile_update($item)
         'carbooking::car',
     ];
 
+    // Captura os direitos do POST (enviados pela interface de edição de Perfil).
+    // O GLPI envia em $_POST['_rights'] com chaves como 'carbooking::booking' e
+    // valores que são bitmasks (READ=1, UPDATE=2, CREATE=4, DELETE=8, PURGE=16).
     $post_rights = [];
     if (!empty($_POST['_rights']) && is_array($_POST['_rights'])) {
         $post_rights = $_POST['_rights'];
     }
 
+    $rights_updated = false;
+
     foreach ($rights_names as $rname) {
-        // Determina o valor a persistir: prefer POST, senão mantém DB ou 0.
+        // Determina o valor a persistir: prefere POST, senão mantém DB ou 0.
+        $value = 0;
         if (is_array($post_rights) && array_key_exists($rname, $post_rights)) {
+            // Valor vindo do formulário (bitmask).
             $value = (int) $post_rights[$rname];
         } else {
-            // Tenta ler o valor atual no DB.
-            $value = 0;
+            // Se não veio no POST, tenta ler do banco (manter valor anterior).
             $iterator = $DB->request([
                 'SELECT' => ['rights'],
                 'FROM'   => 'glpi_profilerights',
@@ -212,13 +218,14 @@ function plugin_carbooking_post_profile_update($item)
                 'rights'      => $value,
             ]);
         }
+        $rights_updated = true;
     }
 
-    // Sincroniza a sessão do usuário se o perfil editado for o ativo.
-    if (isset($_SESSION['glpiactiveprofile']['id']) && (int) $_SESSION['glpiactiveprofile']['id'] === $profiles_id) {
+    // Sincroniza a sessão do usuário imediatamente se o perfil editado for o ativo.
+    if ($rights_updated && isset($_SESSION['glpiactiveprofile']['id']) && (int) $_SESSION['glpiactiveprofile']['id'] === $profiles_id) {
         $_SESSION['glpiactiveprofile']['rights'] = ProfileRight::getProfileRights($profiles_id);
         if (class_exists('Toolbox')) {
-            Toolbox::logInFile('carbooking', "Perfil $profiles_id atualizado e sessão sincronizada.\n");
+            Toolbox::logInFile('carbooking', "Perfil $profiles_id: permissões atualizadas e sessão sincronizada.\n");
         }
     }
 }
