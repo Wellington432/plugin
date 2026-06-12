@@ -7,7 +7,7 @@ use GlpiPlugin\Carbooking\Car;
 include('../../../inc/includes.php');
 
 // Precisa poder ver agendamentos para abrir a agenda.
-Session::checkRight(Booking::$rightname, READ);
+Session::checkRight(Booking::$rightname, CREATE);
 
 // Data selecionada (padrão: hoje). Validada como Y-m-d.
 $date = $_GET['date'] ?? date('Y-m-d');
