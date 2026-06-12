@@ -174,11 +174,11 @@ function plugin_carbooking_post_profile_update($item)
     }
 
     foreach ($rights_names as $rname) {
-        if (array_key_exists($rname, $post_rights)) {
-            // Valor explicitamente enviado pelo formulário do GLPI.
+        // Determina o valor a persistir: prefer POST, senão mantém DB ou 0.
+        if (is_array($post_rights) && array_key_exists($rname, $post_rights)) {
             $value = (int) $post_rights[$rname];
         } else {
-            // Mantém o valor existente no banco, se houver; senão 0.
+            // Tenta ler o valor atual no DB.
             $value = 0;
             $iterator = $DB->request([
                 'SELECT' => ['rights'],
@@ -195,7 +195,7 @@ function plugin_carbooking_post_profile_update($item)
             }
         }
 
-        // Atualiza ou insere usando a API do $DB.
+        // Persistência segura: update se existir, insert caso contrário.
         $exists = countElementsInTable('glpi_profilerights', [
             'profiles_id' => $profiles_id,
             'name'        => $rname,
@@ -211,6 +211,14 @@ function plugin_carbooking_post_profile_update($item)
                 'name'        => $rname,
                 'rights'      => $value,
             ]);
+        }
+    }
+
+    // Sincroniza a sessão do usuário se o perfil editado for o ativo.
+    if (isset($_SESSION['glpiactiveprofile']['id']) && (int) $_SESSION['glpiactiveprofile']['id'] === $profiles_id) {
+        $_SESSION['glpiactiveprofile']['rights'] = ProfileRight::getProfileRights($profiles_id);
+        if (class_exists('Toolbox')) {
+            Toolbox::logInFile('carbooking', "Perfil $profiles_id atualizado e sessão sincronizada.\n");
         }
     }
 }
