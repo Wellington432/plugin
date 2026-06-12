@@ -7,11 +7,6 @@ use CommonGLPI;
 use Html;
 use Profile as GlpiProfile;
 
-/**
- * Gestão de permissões do plugin, exibida como aba dentro de
- * Administração > Perfis. Define os direitos sobre Carros e Agendamentos
- * (incluindo o direito específico de aprovação).
- */
 class Profile extends CommonDBTM
 {
     public static $rightname = 'profile';
@@ -22,9 +17,7 @@ class Profile extends CommonDBTM
     }
 
     /**
-     * Lista de direitos do plugin, exibida na matriz de permissões.
-     *
-     * @return array<int, array<string, string>>
+     * Direitos do plugin.
      */
     public static function getAllRights(): array
     {
@@ -42,51 +35,66 @@ class Profile extends CommonDBTM
         ];
     }
 
+    /**
+     * Nome da aba em Administração > Perfis.
+     */
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
-        if ($item instanceof GlpiProfile && $item->getField('id')) {
-            return self::createTabEntry(self::getTypeName());
+        if ($item instanceof GlpiProfile && $item->getID()) {
+            return self::getTypeName();
         }
+
         return '';
     }
 
-    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
-    {
-        if ($item instanceof GlpiProfile && $item->getField('id')) {
-            self::showForProfile((int) $item->getID());
+    /**
+     * Conteúdo da aba.
+     */
+    public static function displayTabContentForItem(
+        CommonGLPI $item,
+        $tabnum = 1,
+        $withtemplate = 0
+    ) {
+        if ($item instanceof GlpiProfile && $item->getID()) {
+            self::showForProfile((int)$item->getID());
         }
+
         return true;
     }
 
     /**
-     * Renderiza a matriz de direitos para um perfil.
+     * Exibe a matriz de permissões.
      */
-    public static function showForProfile(int $profiles_id = 0): void
+    public static function showForProfile(int $profiles_id): void
     {
         $canedit = self::canUpdate();
 
-        $profile = new GlpiProfile();
-        $profile->getFromDB($profiles_id);
-
         echo "<div class='spaced'>";
+
         echo "<form method='post' action='" . GlpiProfile::getFormURL() . "'>";
 
-        $profile->displayRightsChoiceMatrix(self::getAllRights(), [
-            'canedit'       => $canedit,
-            'default_class' => 'tab_bg_2',
-            'title'         => self::getTypeName(),
-        ]);
+        GlpiProfile::displayRightsChoiceMatrix(
+            self::getAllRights(),
+            [
+                'canedit'       => $canedit,
+                'default_class' => 'tab_bg_2',
+                'title'         => self::getTypeName(),
+            ]
+        );
 
         if ($canedit) {
-            echo "<div class='center mt-2'>";
             echo Html::hidden('id', ['value' => $profiles_id]);
-            echo "<button type='submit' name='update' value='1' class='btn btn-primary'>";
-            echo "<i class='ti ti-device-floppy'></i> " . _sx('button', 'Save');
+
+            echo "<div class='center'>";
+            echo "<button class='btn btn-primary' type='submit' name='update' value='1'>";
+            echo "<i class='ti ti-device-floppy'></i> ";
+            echo _sx('button', 'Save');
             echo "</button>";
             echo "</div>";
         }
 
         Html::closeForm();
+
         echo "</div>";
     }
 }
