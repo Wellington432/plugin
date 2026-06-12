@@ -1,0 +1,158 @@
+{# Painel de análise: sub-abas Mês / Ano #}
+
+<div id="carbooking-analytics"
+     class="carbooking-agenda"
+     data-sector='{{ data.by_sector|json_encode|raw }}'
+     data-car='{{ data.by_car|json_encode|raw }}'
+     data-status='{{ data.status|json_encode|raw }}'>
+
+    {# ---------- HERO ---------- #}
+    <div class="carbooking-hero">
+        <div class="carbooking-hero__top">
+            <div class="carbooking-hero__title">
+                <i class="ti ti-chart-pie"></i>
+                <div>
+                    <h2>{{ __('Análise da frota', 'carbooking') }}</h2>
+                    <p class="carbooking-subtitle">{{ __('Uso dos carros por setor, veículo e status', 'carbooking') }}</p>
+                </div>
+            </div>
+            <form method="get" class="carbooking-datebar" action="{{ web_dir }}/front/analytics.php">
+                <input type="month" name="month" class="carbooking-date-input" value="{{ month }}"
+                       onchange="this.form.submit()">
+            </form>
+        </div>
+    </div>
+
+    {# ---------- Abas principais ---------- #}
+    <div class="carbooking-tabs">
+        <a class="carbooking-tab" href="{{ web_dir }}/front/agenda.php"><i class="ti ti-calendar-plus"></i> {{ __('Agendar', 'carbooking') }}</a>
+        <a class="carbooking-tab" href="{{ web_dir }}/front/calendar.php"><i class="ti ti-calendar-month"></i> {{ __('Calendário', 'carbooking') }}</a>
+        <a class="carbooking-tab" href="{{ web_dir }}/front/booking.php"><i class="ti ti-list-check"></i> {{ __('Agendamentos', 'carbooking') }}</a>
+        {% if can_manage_cars %}
+            <a class="carbooking-tab" href="{{ web_dir }}/front/car.php"><i class="ti ti-car"></i> {{ __('Frota', 'carbooking') }}</a>
+        {% endif %}
+        <span class="carbooking-tab is-active"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</span>
+    </div>
+
+    {# ---------- Sub-abas: Mês / Ano ---------- #}
+    <div class="carbooking-subtabs">
+        <button type="button" class="carbooking-subtab is-active" data-view="month">
+            <i class="ti ti-calendar-stats"></i> {{ month_label }}
+        </button>
+        <button type="button" class="carbooking-subtab" data-view="year">
+            <i class="ti ti-calendar"></i> {{ __('Ano', 'carbooking') }} {{ year }}
+        </button>
+    </div>
+
+    {# ===== VISÃO MÊS ===== #}
+    <div id="carbooking-view-month" class="carbooking-view">
+        {% if data.total == 0 %}
+            <div class="carbooking-panel__card" style="padding:2rem;text-align:center;">
+                <i class="ti ti-chart-pie" style="font-size:2.5rem;color:var(--cb-border);"></i>
+                <p>{{ __('Nenhuma viagem registrada neste mês.', 'carbooking') }}</p>
+            </div>
+        {% else %}
+
+        <div class="carbooking-cards2">
+            <div class="carbooking-stat">
+                <span class="carbooking-stat__icon" style="--c:#4263eb;"><i class="ti ti-route"></i></span>
+                <div><div class="carbooking-stat__value">{{ data.total }}</div>
+                <div class="carbooking-stat__label">{{ __('Viagens no mês', 'carbooking') }}</div></div>
+            </div>
+            <div class="carbooking-stat">
+                <span class="carbooking-stat__icon" style="--c:#10b981;"><i class="ti ti-building"></i></span>
+                <div><div class="carbooking-stat__value">{{ data.top_sector ?? '—' }}</div>
+                <div class="carbooking-stat__label">{{ __('Setor que mais usou', 'carbooking') }}</div></div>
+            </div>
+            <div class="carbooking-stat">
+                <span class="carbooking-stat__icon" style="--c:#f59e0b;"><i class="ti ti-car"></i></span>
+                <div><div class="carbooking-stat__value">{{ data.top_car ?? '—' }}</div>
+                <div class="carbooking-stat__label">{{ __('Carro mais usado', 'carbooking') }}</div></div>
+            </div>
+            <div class="carbooking-stat">
+                <span class="carbooking-stat__icon" style="--c:#6366f1;"><i class="ti ti-checks"></i></span>
+                <div><div class="carbooking-stat__value">{{ data.approval_rate }}%</div>
+                <div class="carbooking-stat__label">{{ __('Taxa de aprovação', 'carbooking') }}</div></div>
+            </div>
+        </div>
+
+        <div class="carbooking-analytics-grid">
+            <div class="carbooking-panel__card carbooking-chartbox">
+                <h3><i class="ti ti-chart-pie"></i> {{ __('Viagens por setor', 'carbooking') }}</h3>
+                <div class="carbooking-chart-row">
+                    <div id="carbooking-pie"></div>
+                    <ul id="carbooking-pie-legend" class="carbooking-legend2"></ul>
+                </div>
+            </div>
+
+            <div class="carbooking-panel__card carbooking-chartbox">
+                <h3><i class="ti ti-progress-check"></i> {{ __('Situação dos pedidos', 'carbooking') }}</h3>
+                <div class="carbooking-chart-row">
+                    <div id="carbooking-donut"></div>
+                    <ul id="carbooking-donut-legend" class="carbooking-legend2"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="carbooking-panel__card carbooking-chartbox" style="margin-top:1.3rem;">
+            <h3><i class="ti ti-chart-bar"></i> {{ __('Viagens por carro', 'carbooking') }}</h3>
+            <div id="carbooking-bars" class="carbooking-bars"></div>
+        </div>
+
+        <div class="carbooking-panel__card carbooking-chartbox" style="margin-top:1.3rem;">
+            <h3><i class="ti ti-users"></i> {{ __('Agendamentos do mês — quem agendou', 'carbooking') }}</h3>
+            <div class="carbooking-table-wrap">
+                <table class="carbooking-table">
+                    <thead><tr>
+                        <th>{{ __('Data', 'carbooking') }}</th>
+                        <th>{{ __('Solicitante', 'carbooking') }}</th>
+                        <th>{{ __('Setor', 'carbooking') }}</th>
+                        <th>{{ __('Carro', 'carbooking') }}</th>
+                        <th>{{ __('Status', 'carbooking') }}</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for b in bookings %}
+                        <tr>
+                            <td>{{ b.departure|slice(8,2) }}/{{ b.departure|slice(5,2) }} {{ b.departure|slice(11,5) }}</td>
+                            <td>{{ b.user }}</td>
+                            <td><span class="carbooking-pill"><i class="ti ti-building"></i> {{ b.sector }}</span></td>
+                            <td>{{ b.car }}</td>
+                            <td><span class="carbooking-chip status-{{ b.status == 2 ? 'approved' : (b.status == 3 ? 'rejected' : 'pending') }}">{{ b.status_label }}</span></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% endif %}
+    </div>
+
+    {# ===== VISÃO ANO ===== #}
+    <div id="carbooking-view-year" class="carbooking-view" hidden>
+        <div class="carbooking-panel__card carbooking-chartbox">
+            <h3><i class="ti ti-calendar"></i> {{ __('Todos os agendamentos de', 'carbooking') }} {{ year }}</h3>
+            {% if year_bookings is empty %}
+                <p class="text-muted">{{ __('Nenhum agendamento neste ano.', 'carbooking') }}</p>
+            {% else %}
+                {% set last_month = 0 %}
+                <div class="carbooking-year-list">
+                {% for b in year_bookings %}
+                    {% if b.month != last_month %}
+                        {% set last_month = b.month %}
+                        <div class="carbooking-year-month">{{ meses[b.month] }}</div>
+                    {% endif %}
+                    <div class="carbooking-year-row s-{{ b.status }}">
+                        <span class="carbooking-year-date">{{ b.departure|slice(8,2) }}/{{ b.departure|slice(5,2) }}</span>
+                        <span class="carbooking-year-time">{{ b.departure|slice(11,5) }}{% if b.arrival %} &rarr; {{ b.arrival|slice(11,5) }}{% endif %}</span>
+                        <strong class="carbooking-year-car">{{ b.car }}</strong>
+                        <span class="carbooking-year-user"><i class="ti ti-user"></i> {{ b.user }}</span>
+                        <span class="carbooking-pill"><i class="ti ti-building"></i> {{ b.sector }}</span>
+                        <span class="carbooking-chip status-{{ b.status == 2 ? 'approved' : (b.status == 3 ? 'rejected' : 'pending') }}">{{ b.status_label }}</span>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

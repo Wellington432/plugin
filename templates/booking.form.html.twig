@@ -1,0 +1,131 @@
+{# Formulário do agendamento + painel único de aprovação (somente admin) #}
+{% set is_new = item.isNewItem() %}
+{% set status = item.fields['status'] %}
+
+<div class="carbooking-bookingform">
+    <form method="post" action="{{ web_dir }}/front/booking.form.php">
+
+        {% if not is_new %}
+            <input type="hidden" name="id" value="{{ item.fields['id'] }}">
+        {% endif %}
+        <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+
+        {# Faixa de status (apenas em edição) #}
+        {% if not is_new %}
+            {% set chip = {1: 'status-pending', 2: 'status-approved', 3: 'status-rejected'} %}
+            <div class="carbooking-statusbar">
+                <span class="carbooking-chip {{ chip[status] }}">{{ statuses[status] }}</span>
+                {% if item.fields['date_validation'] %}
+                    <span class="text-muted">{{ __('Analisado em', 'carbooking') }} {{ item.fields['date_validation'] }}</span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label" for="bk-car">{{ __('Carro', 'carbooking') }}</label>
+                <select class="form-select" id="bk-car" name="plugin_carbooking_cars_id" required>
+                    <option value="">{{ __('Selecione…', 'carbooking') }}</option>
+                    {% for id, car in cars %}
+                        <option value="{{ id }}" {{ item.fields['plugin_carbooking_cars_id'] == id ? 'selected' : '' }}>
+                            {{ car.name }}{% if car.plate %} · {{ car.plate }}{% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label" for="bk-dest">{{ __('Destino', 'carbooking') }}</label>
+                <input type="text" class="form-control" id="bk-dest" name="destination"
+                       value="{{ item.fields['destination'] }}">
+            </div>
+
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label" for="bk-sector">{{ __('Setor', 'carbooking') }}</label>
+                <select class="form-select" id="bk-sector" name="groups_id">
+                    <option value="0">{{ __('— Selecione o setor —', 'carbooking') }}</option>
+                    {% for id, gname in groups %}
+                        <option value="{{ id }}" {{ item.fields['groups_id'] == id ? 'selected' : '' }}>{{ gname }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label" for="bk-dep">{{ __('Saída da SEDUC', 'carbooking') }}</label>
+                <input type="datetime-local" class="form-control" id="bk-dep" name="date_departure"
+                       value="{{ item.fields['date_departure'] ? item.fields['date_departure']|replace({' ': 'T'})|slice(0, 16) : '' }}" required>
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                <label class="form-label" for="bk-arr">
+                    {{ __('Chegada', 'carbooking') }} <span class="carbooking-optional">{{ __('(opcional)', 'carbooking') }}</span>
+                </label>
+                <input type="datetime-local" class="form-control" id="bk-arr" name="date_arrival"
+                       value="{{ item.fields['date_arrival'] ? item.fields['date_arrival']|replace({' ': 'T'})|slice(0, 16) : '' }}">
+            </div>
+
+            <div class="col-12 mb-3">
+                <label class="form-label" for="bk-reason">{{ __('Motivo', 'carbooking') }}</label>
+                <textarea class="form-control" id="bk-reason" name="reason" rows="2">{{ item.fields['reason'] }}</textarea>
+            </div>
+        </div>
+
+        <div class="carbooking-formactions">
+            {% if is_new %}
+                <button type="submit" name="add" value="1" class="btn btn-primary">
+                    <i class="ti ti-plus"></i> {{ _x('button', 'Add') }}
+                </button>
+            {% else %}
+                <button type="submit" name="update" value="1" class="btn btn-primary">
+                    <i class="ti ti-device-floppy"></i> {{ _x('button', 'Save') }}
+                </button>
+                <button type="submit" name="purge" value="1" class="btn btn-outline-danger"
+                        onclick="return confirm('{{ __('Excluir definitivamente?', 'carbooking') }}');">
+                    <i class="ti ti-trash"></i> {{ _x('button', 'Delete permanently') }}
+                </button>
+            {% endif %}
+        </div>
+    </form>
+
+    {# ---------- Painel único de aprovação (somente quem tem o direito) ---------- #}
+    {% if can_approve and not is_new %}
+        <div class="carbooking-approval">
+            <h3><i class="ti ti-gavel"></i> {{ __('Aprovação do agendamento', 'carbooking') }}</h3>
+
+            {# Resumo do pedido para o aprovador #}
+            <div class="carbooking-approval__summary">
+                <div><span class="lbl"><i class="ti ti-user"></i> {{ __('Solicitante', 'carbooking') }}</span>
+                     <strong>{{ requester_name ?: '—' }}</strong></div>
+                <div><span class="lbl"><i class="ti ti-building"></i> {{ __('Setor', 'carbooking') }}</span>
+                     <strong>{{ groups[item.fields['groups_id']] ?? '—' }}</strong></div>
+                <div><span class="lbl"><i class="ti ti-car"></i> {{ __('Carro', 'carbooking') }}</span>
+                     <strong>{{ cars[item.fields['plugin_carbooking_cars_id']] ?? '—' }}</strong></div>
+                <div><span class="lbl"><i class="ti ti-map-pin"></i> {{ __('Destino', 'carbooking') }}</span>
+                     <strong>{{ item.fields['destination'] ?: '—' }}</strong></div>
+                <div><span class="lbl"><i class="ti ti-logout"></i> {{ __('Saída', 'carbooking') }}</span>
+                     <strong>{{ item.fields['date_departure'] ?: '—' }}</strong></div>
+                <div><span class="lbl"><i class="ti ti-login"></i> {{ __('Chegada', 'carbooking') }}</span>
+                     <strong>{{ item.fields['date_arrival'] ?: __('Não informada', 'carbooking') }}</strong></div>
+                <div class="full"><span class="lbl"><i class="ti ti-note"></i> {{ __('Motivo', 'carbooking') }}</span>
+                     <strong>{{ item.fields['reason'] ?: '—' }}</strong></div>
+            </div>
+
+            <form method="post" action="{{ web_dir }}/front/booking.form.php">
+                <input type="hidden" name="id" value="{{ item.fields['id'] }}">
+                <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+
+                <label class="form-label" for="bk-cv">{{ __('Comentário (opcional)', 'carbooking') }}</label>
+                <textarea class="form-control" id="bk-cv" name="comment_validation" rows="2">{{ item.fields['comment_validation'] }}</textarea>
+
+                <div class="carbooking-approval__actions">
+                    <button type="submit" name="approve" value="1" class="btn btn-success"
+                            {{ status == 2 ? 'disabled' : '' }}>
+                        <i class="ti ti-check"></i> {{ __('Aprovar', 'carbooking') }}
+                    </button>
+                    <button type="submit" name="reject" value="1" class="btn btn-danger"
+                            {{ status == 3 ? 'disabled' : '' }}>
+                        <i class="ti ti-x"></i> {{ __('Recusar', 'carbooking') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+</div>
