@@ -162,63 +162,85 @@ function plugin_carbooking_post_profile_update($item)
         return;
     }
 
-    // Valores padrão caso o POST não contenha os direitos específicos.
-    $default_booking_rights = 1055; // exemplo: acesso total + bit extra de aprovação
-    $default_car_rights     = 31;
+    // Direitos do plugin que queremos sincronizar.
+    $rights_names = [
+        'carbooking::booking',
+        'carbooking::car',
+    ];
 
-    $booking_rights = null;
-    $car_rights     = null;
-
-    // Verifica se vieram direitos via POST (formulário de edição de perfil).
+    $post_rights = [];
     if (!empty($_POST['_rights']) && is_array($_POST['_rights'])) {
         $post_rights = $_POST['_rights'];
-        if (array_key_exists('carbooking::booking', $post_rights)) {
-            $booking_rights = (int) $post_rights['carbooking::booking'];
-        }
-        if (array_key_exists('carbooking::car', $post_rights)) {
-            $car_rights = (int) $post_rights['carbooking::car'];
-        }
     }
 
-    // Se não veio via POST, aplicamos a lógica simples: se o nome do perfil
-    // contém "admin" atribuímos os valores padrão.
-    if ($booking_rights === null && $car_rights === null) {
-        $pname = (string) $item->getField('name');
-        if ($pname !== '' && stripos($pname, 'admin') !== false) {
-            $booking_rights = $default_booking_rights;
-            $car_rights     = $default_car_rights;
+    foreach ($rights_names as $rname) {
+        if (array_key_exists($rname, $post_rights)) {
+            // Valor explicitamente enviado pelo formulário do GLPI.
+            $value = (int) $post_rights[$rname];
         } else {
-            // Nada a fazer quando não há informação de POST e não é Admin.
-            return;
+            // Mantém o valor existente no banco, se houver; senão 0.
+            $value = 0;
+            $iterator = $DB->request([
+                'SELECT' => ['rights'],
+                'FROM'   => 'glpi_profilerights',
+                'WHERE'  => [
+                    'profiles_id' => $profiles_id,
+                    'name'        => $rname,
+                ],
+                'LIMIT'  => 1,
+            ]);
+            foreach ($iterator as $row) {
+                $value = (int) ($row['rights'] ?? 0);
+                break;
+            }
         }
-    }
 
-    // Função auxiliar para INSERT/UPDATE na tabela glpi_profilerights.
-    $upsertRight = function (int $profiles_id, string $name, int $rights) use ($DB) {
+        // Atualiza ou insere usando a API do $DB.
         $exists = countElementsInTable('glpi_profilerights', [
             'profiles_id' => $profiles_id,
-            'name'        => $name,
+            'name'        => $rname,
         ]);
         if ($exists) {
-            $DB->update('glpi_profilerights', ['rights' => $rights], [
+            $DB->update('glpi_profilerights', ['rights' => $value], [
                 'profiles_id' => $profiles_id,
-                'name'        => $name,
+                'name'        => $rname,
             ]);
         } else {
             $DB->insert('glpi_profilerights', [
                 'profiles_id' => $profiles_id,
-                'name'        => $name,
-                'rights'      => $rights,
+                'name'        => $rname,
+                'rights'      => $value,
             ]);
         }
-    };
+    }
+}
 
-    if ($booking_rights !== null) {
-        $upsertRight($profiles_id, 'carbooking::booking', $booking_rights);
+/**
+ * Hook called when a Profile is purged (deleted). Remove carbooking rights.
+ *
+ * @param mixed $item
+ * @return void
+ */
+function plugin_carbooking_post_profile_purge($item)
+{
+    // Confirma que é um objeto Profile do GLPI.
+    if (! ($item instanceof Profile)) {
+        return;
     }
-    if ($car_rights !== null) {
-        $upsertRight($profiles_id, 'carbooking::car', $car_rights);
+
+    /** @var DBmysql $DB */
+    global $DB;
+
+    $profiles_id = (int) $item->getField('id');
+    if ($profiles_id <= 0) {
+        return;
     }
+
+    // Remove todas as permissões do plugin para este perfil.
+    $DB->delete('glpi_profilerights', [
+        'profiles_id' => $profiles_id,
+        'name'        => ['LIKE', 'carbooking::%'],
+    ]);
 }
 
 /**

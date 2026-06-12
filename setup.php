@@ -11,7 +11,7 @@ use Glpi\Plugin\Hooks;
 use GlpiPlugin\Carbooking\Booking;
 use GlpiPlugin\Carbooking\Profile as CarbookingProfile;
 
-define('PLUGIN_CARBOOKING_VERSION', '1.0.3');
+define('PLUGIN_CARBOOKING_VERSION', '1.0.4');
 
 // Faixa de versões do GLPI suportadas
 define('PLUGIN_CARBOOKING_MIN_GLPI_VERSION', '11.0.0');
@@ -63,6 +63,8 @@ function plugin_init_carbooking()
 
     // Sincroniza direitos quando um objeto Profile é atualizado.
     $PLUGIN_HOOKS['item_update']['carbooking'] = ['Profile' => 'plugin_carbooking_post_profile_update'];
+    // Remove permissões relacionadas ao carbooking quando um Profile é apagado.
+    $PLUGIN_HOOKS['item_purge']['carbooking']  = ['Profile' => 'plugin_carbooking_post_profile_purge'];
 }
 
 /**
