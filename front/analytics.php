@@ -6,7 +6,8 @@ use GlpiPlugin\Carbooking\Car;
 
 include('../../../inc/includes.php');
 
-// Visão gerencial: exige o direito de aprovar agendamentos.
+// Visão gerencial: exige sempre o direito de aprovar agendamentos,
+// independentemente da interface (Helpdesk não tem acesso).
 Session::checkRight("carbooking::booking", Booking::APPROVE);
 
 // Mês selecionado (YYYY-MM); padrão = mês atual.

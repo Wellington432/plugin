@@ -4,7 +4,13 @@ use GlpiPlugin\Carbooking\Booking;
 
 include('../../../inc/includes.php');
 
-Session::checkRight("carbooking::booking", READ);
+// Se for interface simplificada, basta estar logado.
+// Se for interface central, exige a permissão específica do plugin.
+if (Session::getCurrentInterface() === 'helpdesk') {
+    Session::checkLoginUser();
+} else {
+    Session::checkRight("carbooking::booking", READ);
+}
 
 $booking = new Booking();
 

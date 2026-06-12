@@ -6,8 +6,13 @@ use GlpiPlugin\Carbooking\Car;
 
 include('../../../inc/includes.php');
 
-// Precisa poder ver agendamentos para abrir a agenda.
-Session::checkRight("carbooking::booking", READ);
+// Se for interface simplificada, basta estar logado.
+// Se for interface central, exige a permissão específica do plugin.
+if (Session::getCurrentInterface() === 'helpdesk') {
+    Session::checkLoginUser();
+} else {
+    Session::checkRight("carbooking::booking", READ);
+}
 
 // Data selecionada (padrão: hoje). Validada como Y-m-d.
 $date = $_GET['date'] ?? date('Y-m-d');
