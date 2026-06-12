@@ -142,6 +142,86 @@ function plugin_carbooking_install()
 }
 
 /**
+ * Hook called after a Profile is updated — sincroniza direitos do plugin.
+ *
+ * @param mixed $item
+ * @return void
+ */
+function plugin_carbooking_post_profile_update($item)
+{
+    // Confirma que é um objeto Profile do GLPI.
+    if (! ($item instanceof Profile)) {
+        return;
+    }
+
+    /** @var DBmysql $DB */
+    global $DB;
+
+    $profiles_id = (int) $item->getField('id');
+    if ($profiles_id <= 0) {
+        return;
+    }
+
+    // Valores padrão caso o POST não contenha os direitos específicos.
+    $default_booking_rights = 1055; // exemplo: acesso total + bit extra de aprovação
+    $default_car_rights     = 31;
+
+    $booking_rights = null;
+    $car_rights     = null;
+
+    // Verifica se vieram direitos via POST (formulário de edição de perfil).
+    if (!empty($_POST['_rights']) && is_array($_POST['_rights'])) {
+        $post_rights = $_POST['_rights'];
+        if (array_key_exists('carbooking::booking', $post_rights)) {
+            $booking_rights = (int) $post_rights['carbooking::booking'];
+        }
+        if (array_key_exists('carbooking::car', $post_rights)) {
+            $car_rights = (int) $post_rights['carbooking::car'];
+        }
+    }
+
+    // Se não veio via POST, aplicamos a lógica simples: se o nome do perfil
+    // contém "admin" atribuímos os valores padrão.
+    if ($booking_rights === null && $car_rights === null) {
+        $pname = (string) $item->getField('name');
+        if ($pname !== '' && stripos($pname, 'admin') !== false) {
+            $booking_rights = $default_booking_rights;
+            $car_rights     = $default_car_rights;
+        } else {
+            // Nada a fazer quando não há informação de POST e não é Admin.
+            return;
+        }
+    }
+
+    // Função auxiliar para INSERT/UPDATE na tabela glpi_profilerights.
+    $upsertRight = function (int $profiles_id, string $name, int $rights) use ($DB) {
+        $exists = countElementsInTable('glpi_profilerights', [
+            'profiles_id' => $profiles_id,
+            'name'        => $name,
+        ]);
+        if ($exists) {
+            $DB->update('glpi_profilerights', ['rights' => $rights], [
+                'profiles_id' => $profiles_id,
+                'name'        => $name,
+            ]);
+        } else {
+            $DB->insert('glpi_profilerights', [
+                'profiles_id' => $profiles_id,
+                'name'        => $name,
+                'rights'      => $rights,
+            ]);
+        }
+    };
+
+    if ($booking_rights !== null) {
+        $upsertRight($profiles_id, 'carbooking::booking', $booking_rights);
+    }
+    if ($car_rights !== null) {
+        $upsertRight($profiles_id, 'carbooking::car', $car_rights);
+    }
+}
+
+/**
  * Desinstalação: remove tabelas, direitos e preferências de exibição.
  */
 function plugin_carbooking_uninstall()

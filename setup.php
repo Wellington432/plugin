@@ -60,6 +60,9 @@ function plugin_init_carbooking()
         \Glpi\Http\Firewall::addPluginStrategyForLegacyScripts('carbooking', '#^/front/booking\.form\.php$#', $auth);
         \Glpi\Http\Firewall::addPluginStrategyForLegacyScripts('carbooking', '#^/front/car\.picture\.php$#', $auth);
     }
+
+    // Sincroniza direitos quando um objeto Profile é atualizado.
+    $PLUGIN_HOOKS['item_update']['carbooking'] = ['Profile' => 'plugin_carbooking_post_profile_update'];
 }
 
 /**
