@@ -169,8 +169,8 @@ function plugin_carbooking_post_profile_update($item)
     ];
 
     // Captura os direitos do POST (enviados pela interface de edição de Perfil).
-    // O GLPI envia em $_POST['_rights'] com chaves como 'carbooking::booking' e
-    // valores que são bitmasks (READ=1, UPDATE=2, CREATE=4, DELETE=8, PURGE=16).
+    // No GLPI 11, os direitos são enviados em $_POST['_rights'] com chaves como
+    // 'carbooking::booking' e valores que são bitmasks (READ=1, UPDATE=2, CREATE=4, DELETE=8, PURGE=16).
     $post_rights = [];
     if (!empty($_POST['_rights']) && is_array($_POST['_rights'])) {
         $post_rights = $_POST['_rights'];
@@ -201,31 +201,37 @@ function plugin_carbooking_post_profile_update($item)
             }
         }
 
-        // Persistência segura: update se existir, insert caso contrário.
-        $exists = countElementsInTable('glpi_profilerights', [
+        // Persistência segura: usa updateOrInsert (GLPI 11) ou fallback a update/insert.
+        $criteria = [
             'profiles_id' => $profiles_id,
             'name'        => $rname,
-        ]);
-        if ($exists) {
-            $DB->update('glpi_profilerights', ['rights' => $value], [
-                'profiles_id' => $profiles_id,
-                'name'        => $rname,
-            ]);
+        ];
+        $data = ['rights' => $value];
+
+        // Tenta usar updateOrInsert se disponível (GLPI 11.0+).
+        if (method_exists($DB, 'updateOrInsert')) {
+            $DB->updateOrInsert('glpi_profilerights', $criteria + $data, $criteria);
         } else {
-            $DB->insert('glpi_profilerights', [
-                'profiles_id' => $profiles_id,
-                'name'        => $rname,
-                'rights'      => $value,
-            ]);
+            // Fallback para GLPI 10 e anteriores.
+            $exists = countElementsInTable('glpi_profilerights', $criteria);
+            if ($exists) {
+                $DB->update('glpi_profilerights', $data, $criteria);
+            } else {
+                $DB->insert('glpi_profilerights', $criteria + $data);
+            }
         }
         $rights_updated = true;
     }
 
-    // Sincroniza a sessão do usuário imediatamente se o perfil editado for o ativo.
+    // Sincroniza a sessão do usuário imediatamente se o perfil editado for o ativo (GLPI 11).
     if ($rights_updated && isset($_SESSION['glpiactiveprofile']['id']) && (int) $_SESSION['glpiactiveprofile']['id'] === $profiles_id) {
         $_SESSION['glpiactiveprofile']['rights'] = ProfileRight::getProfileRights($profiles_id);
-        if (class_exists('Toolbox')) {
-            Toolbox::logInFile('carbooking', "Perfil $profiles_id: permissões atualizadas e sessão sincronizada.\n");
+        
+        // Verifica se a sincronização foi bem-sucedida para carbooking.
+        if (isset($_SESSION['glpiactiveprofile']['rights']['carbooking::booking']) || isset($_SESSION['glpiactiveprofile']['rights']['carbooking::car'])) {
+            if (class_exists('Toolbox')) {
+                Toolbox::logInFile('carbooking', "GLPI 11: Perfil $profiles_id sincronizado com sucesso.\n");
+            }
         }
     }
 }
