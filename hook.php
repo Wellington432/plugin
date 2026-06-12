@@ -232,12 +232,6 @@ function plugin_carbooking_post_profile_update($item)
             if (class_exists('Toolbox')) {
                 Toolbox::logInFile('carbooking', "GLPI 11: Perfil $profiles_id sincronizado com sucesso.\n");
             }
-        
-        // Verifica se a sincronização foi bem-sucedida para carbooking.
-        if (isset($_SESSION['glpiactiveprofile']['rights']['carbooking::booking']) || isset($_SESSION['glpiactiveprofile']['rights']['carbooking::car'])) {
-            if (class_exists('Toolbox')) {
-                Toolbox::logInFile('carbooking', "GLPI 11: Perfil $profiles_id sincronizado com sucesso.\n");
-            }
         }
     }
 }
