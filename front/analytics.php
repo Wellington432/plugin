@@ -7,7 +7,7 @@ use GlpiPlugin\Carbooking\Car;
 include('../../../inc/includes.php');
 
 // Visão gerencial: exige o direito de aprovar agendamentos.
-Session::checkRight(Booking::$rightname, Booking::APPROVE);
+Session::checkRight("carbooking::booking", Booking::APPROVE);
 
 // Mês selecionado (YYYY-MM); padrão = mês atual.
 $month = $_GET['month'] ?? date('Y-m');

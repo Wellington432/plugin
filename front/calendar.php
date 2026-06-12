@@ -6,7 +6,7 @@ use GlpiPlugin\Carbooking\Car;
 
 include('../../../inc/includes.php');
 
-Session::checkRight(Booking::$rightname, READ);
+Session::checkRight("carbooking::booking", READ);
 
 $month = $_GET['month'] ?? date('Y-m');
 if (!preg_match('/^\d{4}-\d{2}$/', $month)) {

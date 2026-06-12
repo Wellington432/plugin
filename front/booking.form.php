@@ -4,6 +4,8 @@ use GlpiPlugin\Carbooking\Booking;
 
 include('../../../inc/includes.php');
 
+Session::checkRight("carbooking::booking", READ);
+
 $booking = new Booking();
 
 if (isset($_POST['add'])) {

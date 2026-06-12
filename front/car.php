@@ -4,7 +4,7 @@ use GlpiPlugin\Carbooking\Car;
 
 include('../../../inc/includes.php');
 
-Session::checkRight(Car::$rightname, READ);
+Session::checkRight("carbooking::car", READ);
 
 Html::header(
     Car::getTypeName(2),

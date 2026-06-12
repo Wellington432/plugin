@@ -7,7 +7,7 @@ include('../../../inc/includes.php');
 
 // Quem pode ver os agendamentos pode ver as fotos da frota (inclui o
 // funcionário da interface simplificada, que não tem direito sobre Carros).
-Session::checkRight(Booking::$rightname, READ);
+Session::checkRight("carbooking::booking", READ);
 
 $id  = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $car = new Car();
