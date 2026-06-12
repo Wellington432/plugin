@@ -11,7 +11,7 @@ use Glpi\Plugin\Hooks;
 use GlpiPlugin\Carbooking\Booking;
 use GlpiPlugin\Carbooking\Profile as CarbookingProfile;
 
-define('PLUGIN_CARBOOKING_VERSION', '1.0.1');
+define('PLUGIN_CARBOOKING_VERSION', '1.0.2');
 
 // Faixa de versões do GLPI suportadas
 define('PLUGIN_CARBOOKING_MIN_GLPI_VERSION', '11.0.0');
