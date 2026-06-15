@@ -1,0 +1,50 @@
+{# Calendário mensal no estilo "calendário de mesa" #}
+
+<div id="carbooking-calendar"
+     class="carbooking-agenda"
+     data-ajax-month="{{ web_dir }}/ajax/month.php"
+     data-bform="{{ web_dir }}/front/booking.form.php"
+     data-month="{{ month }}"
+     data-csrf="{{ csrf }}"
+     {% if is_helpdesk %}data-helpdesk="1"{% endif %}
+     {% if can_delete %}data-candelete="1"{% endif %}>
+
+    {# ---------- Abas ---------- #}
+    {% if not is_helpdesk %}
+    <div class="carbooking-tabs">
+        <a class="carbooking-tab" href="{{ web_dir }}/front/agenda.php"><i class="ti ti-calendar-plus"></i> {{ __('Agendar', 'carbooking') }}</a>
+        <span class="carbooking-tab is-active"><i class="ti ti-calendar-month"></i> {{ __('Calendário', 'carbooking') }}</span>
+        <a class="carbooking-tab" href="{{ web_dir }}/front/booking.php"><i class="ti ti-list-check"></i> {{ __('Agendamentos', 'carbooking') }}</a>
+        {% if can_manage_cars %}
+            <a class="carbooking-tab" href="{{ web_dir }}/front/car.php"><i class="ti ti-car"></i> {{ __('Frota', 'carbooking') }}</a>
+        {% endif %}
+        {% if can_view_analytics %}
+            <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {# ---------- Cabeçalho: mês grande + navegação ---------- #}
+    <div class="carbooking-cal-bar">
+        <button type="button" class="carbooking-cal-arrow" data-nav="-1" title="{{ __('Mês anterior', 'carbooking') }}"><i class="ti ti-chevron-left"></i></button>
+        <h2 id="carbooking-cal-title" class="carbooking-cal-monthtitle"></h2>
+        <button type="button" class="carbooking-cal-arrow" data-nav="1" title="{{ __('Próximo mês', 'carbooking') }}"><i class="ti ti-chevron-right"></i></button>
+        <button type="button" class="carbooking-cal-today" data-nav="today">{{ __('Hoje', 'carbooking') }}</button>
+    </div>
+
+    {# ---------- Folha do calendário ---------- #}
+    <div class="carbooking-sheet">
+        <div id="carbooking-grid" class="carbooking-grid">
+            <div class="carbooking-grid-loading"><span class="carbooking-spinner"></span></div>
+        </div>
+    </div>
+
+    {# ---------- Painel de detalhe do dia ---------- #}
+    <div id="carbooking-day-panel" class="carbooking-day-panel" hidden>
+        <div class="carbooking-day-panel__head">
+            <h3 id="carbooking-day-title"></h3>
+            <button type="button" id="carbooking-day-close" class="carbooking-day-close"><i class="ti ti-x"></i></button>
+        </div>
+        <div id="carbooking-day-list" class="carbooking-day-list"></div>
+    </div>
+</div>
