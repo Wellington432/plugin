@@ -79,13 +79,13 @@
                 <button type="submit" name="update" value="1" class="btn btn-primary">
                     <i class="ti ti-device-floppy"></i> {{ _x('button', 'Save') }}
                 </button>
-                {% else %}
-                <span class="carbooking-noedit"><i class="ti ti-lock"></i> {{ __('Somente agendamentos pendentes podem ser editados.', 'carbooking') }}</span>
-                {% endif %}
                 <button type="submit" name="purge" value="1" class="btn btn-outline-danger"
                         onclick="return confirm('{{ __('Excluir definitivamente?', 'carbooking') }}');">
                     <i class="ti ti-trash"></i> {{ _x('button', 'Delete permanently') }}
                 </button>
+                {% else %}
+                <span class="carbooking-noedit"><i class="ti ti-lock"></i> {{ __('Somente agendamentos pendentes podem ser editados.', 'carbooking') }}</span>
+                {% endif %}
             {% endif %}
         </div>
     </form>

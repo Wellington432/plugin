@@ -100,6 +100,10 @@ if (isset($_POST['add'])) {
 
 } elseif (isset($_POST['delete'])) {
     $booking->check($_POST['id'], DELETE);
+    if ((int) ($booking->fields['status'] ?? 0) !== Booking::STATUS_PENDING) {
+        Session::addMessageAfterRedirect(__('Apenas agendamentos pendentes podem ser excluídos.', 'carbooking'), false, ERROR);
+        Html::back();
+    }
     $booking->delete($_POST);
     $booking->redirectToList();
 
@@ -110,6 +114,10 @@ if (isset($_POST['add'])) {
 
 } elseif (isset($_POST['purge'])) {
     $booking->check($_POST['id'], PURGE);
+    if ((int) ($booking->fields['status'] ?? 0) !== Booking::STATUS_PENDING) {
+        Session::addMessageAfterRedirect(__('Apenas agendamentos pendentes podem ser excluídos.', 'carbooking'), false, ERROR);
+        Html::back();
+    }
     $booking->delete($_POST, 1);
     $booking->redirectToList();
 
