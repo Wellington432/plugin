@@ -1,0 +1,133 @@
+{# Agenda de carros — hero + board diário da frota + formulário de solicitação #}
+
+<div id="carbooking-agenda"
+     class="carbooking-agenda"
+     data-cb-pending-url="{{ web_dir }}/ajax/pending.php"
+     data-ajax="{{ web_dir }}/ajax/carsstatus.php"
+     data-bform="{{ web_dir }}/front/booking.form.php"
+     {% if is_helpdesk %}data-helpdesk="1"{% endif %}
+     data-date="{{ date }}">
+
+    {# ---------- HERO ---------- #}
+    <div class="carbooking-hero">
+        <div class="carbooking-hero__top">
+            <div class="carbooking-hero__title">
+                <i class="ti ti-car"></i>
+                <div>
+                    <h2>{{ __('Agenda da frota', 'carbooking') }}</h2>
+                    <p class="carbooking-subtitle">{{ __('Veja os carros em uso e solicite o seu', 'carbooking') }}</p>
+                </div>
+            </div>
+
+            <div class="carbooking-datebar">
+                <button type="button" class="carbooking-nav" data-step="-1" aria-label="{{ __('Dia anterior', 'carbooking') }}">
+                    <i class="ti ti-chevron-left"></i>
+                </button>
+                <input type="date" id="carbooking-date" class="carbooking-date-input" value="{{ date }}">
+                <button type="button" class="carbooking-nav" data-step="1" aria-label="{{ __('Próximo dia', 'carbooking') }}">
+                    <i class="ti ti-chevron-right"></i>
+                </button>
+                <button type="button" class="carbooking-today">{{ __('Hoje', 'carbooking') }}</button>
+            </div>
+        </div>
+    </div>
+
+    {# ---------- Abas de navegação (conforme os direitos do usuário) ---------- #}
+    <div class="carbooking-tabs">
+        <button type="button" class="carbooking-back" data-home="{{ web_dir }}/front/agenda.php"><i class="ti ti-arrow-left"></i> {{ __('Voltar', 'carbooking') }}</button>
+        <span class="carbooking-tab is-active"><i class="ti ti-calendar-plus"></i> {{ __('Agendar', 'carbooking') }}</span>
+        <a class="carbooking-tab" href="{{ web_dir }}/front/calendar.php"><i class="ti ti-calendar-month"></i> {{ __('Calendário', 'carbooking') }}</a>
+        <a class="carbooking-tab" href="{{ web_dir }}/front/booking.php"><i class="ti ti-list-check"></i> {{ __('Agendamentos', 'carbooking') }}</a>
+        {% if can_manage_cars %}
+            <a class="carbooking-tab" href="{{ web_dir }}/front/car.php"><i class="ti ti-car"></i> {{ __('Frota', 'carbooking') }}</a>
+        {% endif %}
+        {% if can_view_analytics %}
+            <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
+        {% endif %}
+    </div>
+
+
+    <div class="carbooking-layout">
+
+        {# ---------- Board de carros ---------- #}
+        <section class="carbooking-board" aria-live="polite">
+            <div class="carbooking-board__head">
+                <h3 id="carbooking-board-title">{{ __('Carros neste dia', 'carbooking') }}</h3>
+                <div class="carbooking-legend">
+                    <span><i class="carbooking-dot dot-free"></i>{{ __('Livre', 'carbooking') }}</span>
+                    <span><i class="carbooking-dot dot-pending"></i>{{ __('Pendente', 'carbooking') }}</span>
+                    <span><i class="carbooking-dot dot-approved"></i>{{ __('Em uso', 'carbooking') }}</span>
+                </div>
+            </div>
+
+            <div id="carbooking-cards" class="carbooking-cards">
+                <div class="carbooking-loading">
+                    <span class="carbooking-spinner"></span>{{ __('Carregando frota…', 'carbooking') }}
+                </div>
+            </div>
+        </section>
+
+        {# ---------- Painel do formulário ---------- #}
+        {% if can_create %}
+            <aside class="carbooking-panel">
+                <div class="carbooking-panel__card">
+                    <h3><i class="ti ti-calendar-plus"></i> {{ __('Novo agendamento', 'carbooking') }}</h3>
+
+                    {% if cars is empty %}
+                        <div class="carbooking-empty">
+                            <i class="ti ti-car-off"></i>
+                            <p>{{ __('Nenhum carro cadastrado ainda.', 'carbooking') }}</p>
+                            <a class="btn btn-outline-primary" href="{{ cars_url }}">{{ __('Cadastrar carro', 'carbooking') }}</a>
+                        </div>
+                    {% else %}
+                        <form method="post" action="{{ web_dir }}/front/booking.form.php" class="carbooking-form">
+                            <input type="hidden" name="add" value="1">
+                            <input type="hidden" name="_from_agenda" value="1">
+                            <input type="hidden" name="_agenda_date" id="carbooking-form-date" value="{{ date }}">
+                            <input type="hidden" name="_glpi_csrf_token" value="{{ csrf }}">
+
+                            <label class="form-label" for="cb-car">{{ __('Carro', 'carbooking') }}</label>
+                            <select class="form-select" id="cb-car" name="plugin_carbooking_cars_id" required>
+                                <option value="">{{ __('Selecione…', 'carbooking') }}</option>
+                                {% for id, car in cars %}
+                                    <option value="{{ id }}">{{ car.name }}{% if car.plate %} · {{ car.plate }}{% endif %}</option>
+                                {% endfor %}
+                            </select>
+
+                            <div id="carbooking-conflict" class="carbooking-conflict" hidden>
+                                <i class="ti ti-alert-triangle"></i><span></span>
+                            </div>
+
+                            <label class="form-label" for="cb-sector">{{ __('Setor', 'carbooking') }}</label>
+                            <select class="form-select" id="cb-sector" name="groups_id">
+                                <option value="0">{{ __('— Selecione o setor —', 'carbooking') }}</option>
+                                {% for id, gname in groups %}
+                                    <option value="{{ id }}">{{ gname }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label class="form-label" for="cb-dep">{{ __('Saída da SEDUC', 'carbooking') }}</label>
+                            <input type="datetime-local" class="form-control" id="cb-dep" name="date_departure" value="{{ date }}T08:00" required>
+
+                            <label class="form-label" for="cb-arr">
+                                {{ __('Chegada', 'carbooking') }} <span class="carbooking-optional">{{ __('(opcional)', 'carbooking') }}</span>
+                            </label>
+                            <input type="datetime-local" class="form-control" id="cb-arr" name="date_arrival">
+
+                            <label class="form-label" for="cb-dest">{{ __('Destino', 'carbooking') }}</label>
+                            <input type="text" class="form-control" id="cb-dest" name="destination" placeholder="{{ __('Para onde o carro vai', 'carbooking') }}">
+
+                            <label class="form-label" for="cb-reason">{{ __('Motivo', 'carbooking') }}</label>
+                            <textarea class="form-control" id="cb-reason" name="reason" rows="2" placeholder="{{ __('Ex.: transporte de materiais', 'carbooking') }}"></textarea>
+
+                            <button type="submit" class="carbooking-submit">
+                                <i class="ti ti-send"></i> {{ __('Solicitar agendamento', 'carbooking') }}
+                            </button>
+                            <p class="carbooking-hint">{{ __('O pedido fica pendente até a aprovação do administrador.', 'carbooking') }}</p>
+                        </form>
+                    {% endif %}
+                </div>
+            </aside>
+        {% endif %}
+    </div>
+</div>

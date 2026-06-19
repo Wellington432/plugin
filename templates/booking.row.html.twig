@@ -1,0 +1,56 @@
+{# Linha de um agendamento (sem macro). Espera: b, web_dir, can_approve #}
+<div class="carbooking-blist-item s-{{ b.status }}">
+    <div class="carbooking-blist-item__date">
+        <span class="carbooking-blist-day">{{ b.departure|slice(8,2) }}/{{ b.departure|slice(5,2) }}</span>
+        <span class="carbooking-blist-time">{{ b.departure|slice(11,5) }}{% if b.arrival %} &rarr; {{ b.arrival|slice(11,5) }}{% endif %}</span>
+    </div>
+    <div class="carbooking-blist-item__body">
+        <strong>{{ b.car }}</strong>
+        <div class="carbooking-blist-meta"><i class="ti ti-user"></i> {{ b.user }} &nbsp;·&nbsp; <i class="ti ti-building"></i> {{ b.sector }}</div>
+        {% if b.destination %}<div class="carbooking-blist-meta"><i class="ti ti-map-pin"></i> {{ b.destination }}</div>{% endif %}
+        {% if b.returned_at %}<div class="carbooking-blist-meta ok"><i class="ti ti-circle-check"></i> {{ __('Chegou em', 'carbooking') }} {{ b.returned_at|slice(8,2) }}/{{ b.returned_at|slice(5,2) }} {{ b.returned_at|slice(11,5) }}</div>{% endif %}
+        {% if b.status == 4 and b.note %}<div class="carbooking-blist-meta no"><i class="ti ti-info-circle"></i> {{ __('Motivo', 'carbooking') }}: {{ b.note }}</div>{% endif %}
+    </div>
+    <div class="carbooking-blist-item__side">
+        <span class="carbooking-chip status-{{ b.status == 2 ? 'approved' : (b.status == 3 ? 'rejected' : (b.status == 4 ? 'rejected' : 'pending')) }}">{{ b.status_label }}</span>
+
+        <div class="carbooking-blist-actions">
+            {% if b.status == 1 and can_approve %}
+                <form method="post" action="{{ web_dir }}/front/booking.form.php"{% if b.conflict %} onsubmit="return confirm('{{ __('ATENÇÃO: já existe outro agendamento para este carro neste mesmo horário. Deseja aprovar mesmo assim?', 'carbooking') }}');"{% endif %}>
+                    <input type="hidden" name="id" value="{{ b.id }}">
+                    <input type="hidden" name="approve" value="1">
+                    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf }}">
+                    <button type="submit" class="carbooking-btn-approve"><i class="ti ti-check"></i> {{ __('Aprovar', 'carbooking') }}{% if b.conflict %} <span class="carbooking-confdot" title="{{ __('Conflito de horário', 'carbooking') }}"></span>{% endif %}</button>
+                </form>
+                <form method="post" action="{{ web_dir }}/front/booking.form.php" onsubmit="return confirm('{{ __('Recusar este agendamento?', 'carbooking') }}');">
+                    <input type="hidden" name="id" value="{{ b.id }}">
+                    <input type="hidden" name="reject" value="1">
+                    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf }}">
+                    <button type="submit" class="carbooking-btn-reject"><i class="ti ti-x"></i> {{ __('Recusar', 'carbooking') }}</button>
+                </form>
+            {% endif %}
+
+            {% if b.status == 2 and can_approve and not b.returned_at %}
+                <button type="button" class="carbooking-btn-arrive"
+                        data-cb-arrive data-id="{{ b.id }}"
+                        data-bform="{{ web_dir }}/front/booking.form.php"
+                        data-csrf="{{ csrf }}">
+                    <i class="ti ti-flag-check"></i> {{ __('Marcar chegada', 'carbooking') }}
+                </button>
+            {% endif %}
+
+            {% if b.has_sheet %}
+                <a class="carbooking-btn-info" href="{{ web_dir }}/front/sheet.php?id={{ b.id }}"><i class="ti ti-download"></i> {{ __('Baixar folha', 'carbooking') }}</a>
+            {% endif %}
+
+            {% if b.can_cancel %}
+                <button type="button" class="carbooking-btn-cancel"
+                        data-cb-cancel data-id="{{ b.id }}"
+                        data-bform="{{ web_dir }}/front/booking.form.php"
+                        data-csrf="{{ csrf }}">
+                    <i class="ti ti-ban"></i> {{ __('Cancelar', 'carbooking') }}
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>

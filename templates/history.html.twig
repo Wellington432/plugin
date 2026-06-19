@@ -1,0 +1,84 @@
+{# Histórico de agendamentos com filtros (data, hora, status) #}
+
+<div id="carbooking-history" class="carbooking-agenda" data-cb-pending-url="{{ web_dir }}/ajax/pending.php">
+
+    {# ---------- Abas ---------- #}
+    <div class="carbooking-tabs">
+        <button type="button" class="carbooking-back" data-home="{{ web_dir }}/front/calendar.php"><i class="ti ti-arrow-left"></i> {{ __('Voltar', 'carbooking') }}</button>
+        <a class="carbooking-tab" href="{{ web_dir }}/front/calendar.php"><i class="ti ti-calendar-month"></i> {{ __('Calendário', 'carbooking') }}</a>
+        <a class="carbooking-tab" href="{{ web_dir }}/front/booking.php"><i class="ti ti-list-check"></i> {{ __('Agendamentos', 'carbooking') }}</a>
+        {% if can_manage_cars %}
+            <a class="carbooking-tab" href="{{ web_dir }}/front/car.php"><i class="ti ti-car"></i> {{ __('Frota', 'carbooking') }}</a>
+        {% endif %}
+        {% if can_view_analytics %}
+            <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
+        {% endif %}
+        <span class="carbooking-tab is-active"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</span>
+        <span class="carbooking-build">v1.0.61</span>
+    </div>
+
+    <div class="carbooking-panel__card carbooking-chartbox">
+        <h3><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}
+            <span class="carbooking-level">{{ is_manager ? __('Visão do gestor (todos)', 'carbooking') : __('Meus agendamentos', 'carbooking') }}</span>
+        </h3>
+
+        {# ---------- Filtros ---------- #}
+        <div class="carbooking-filters">
+            <label>{{ __('Data', 'carbooking') }}
+                <input type="date" id="cb-h-date" class="form-control">
+            </label>
+            <label>{{ __('A partir da hora', 'carbooking') }}
+                <input type="time" id="cb-h-time" class="form-control">
+            </label>
+            <label>{{ __('Status', 'carbooking') }}
+                <select id="cb-h-status" class="form-select">
+                    <option value="">{{ __('Todos', 'carbooking') }}</option>
+                    <option value="1">{{ __('Pendente', 'carbooking') }}</option>
+                    <option value="2">{{ __('Aprovado', 'carbooking') }}</option>
+                    <option value="3">{{ __('Recusado', 'carbooking') }}</option>
+                    <option value="4">{{ __('Cancelado', 'carbooking') }}</option>
+                </select>
+            </label>
+            <button type="button" id="cb-h-clear" class="carbooking-back" style="align-self:flex-end;"><i class="ti ti-eraser"></i> {{ __('Limpar', 'carbooking') }}</button>
+        </div>
+
+        {% if history is empty %}
+            <p class="carbooking-blist-empty">{{ __('Nenhum agendamento no histórico.', 'carbooking') }}</p>
+        {% else %}
+        <div class="carbooking-table-wrap">
+            <table class="carbooking-table" id="cb-h-table">
+                <thead><tr>
+                    <th>{{ __('Data', 'carbooking') }}</th>
+                    <th>{{ __('Hora', 'carbooking') }}</th>
+                    <th>{{ __('Usuário', 'carbooking') }}</th>
+                    <th>{{ __('Carro', 'carbooking') }}</th>
+                    <th>{{ __('Status', 'carbooking') }}</th>
+                    <th>{{ __('Chegada', 'carbooking') }}</th>
+                    <th>{{ __('Aprovação / Cancelamento', 'carbooking') }}</th>
+                    <th>{{ __('Folha', 'carbooking') }}</th>
+                </tr></thead>
+                <tbody>
+                {% for h in history %}
+                    <tr data-date="{{ h.date }}" data-time="{{ h.time }}" data-status="{{ h.status }}">
+                        <td>{{ h.date|slice(8,2) }}/{{ h.date|slice(5,2) }}/{{ h.date|slice(0,4) }}</td>
+                        <td>{{ h.time }}{% if h.arrival %} &rarr; {{ h.arrival|slice(11,5) }}{% endif %}</td>
+                        <td>{{ h.user }}</td>
+                        <td>{{ h.car }}</td>
+                        <td><span class="carbooking-chip status-{{ h.status == 2 ? 'approved' : (h.status == 3 ? 'rejected' : (h.status == 4 ? 'rejected' : 'pending')) }}">{{ h.status_label }}</span></td>
+                        <td>{% if h.returned_at %}<span class="ok">{{ h.returned_at|slice(8,2) }}/{{ h.returned_at|slice(5,2) }} {{ h.returned_at|slice(11,5) }}</span>{% else %}—{% endif %}</td>
+                        <td>
+                            {% if h.acted_by and (h.status == 2 or h.status == 3 or h.status == 4) %}
+                                {{ h.acted_by }}{% if h.acted_at %}<br><small>{{ h.acted_at|slice(8,2) }}/{{ h.acted_at|slice(5,2) }} {{ h.acted_at|slice(11,5) }}</small>{% endif %}
+                                {% if h.status == 4 and h.note %}<br><small class="no">{{ h.note }}</small>{% endif %}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>{% if h.has_sheet %}<a class="carbooking-btn-info" href="{{ web_dir }}/front/sheet.php?id={{ h.id }}"><i class="ti ti-download"></i> {{ __('Baixar', 'carbooking') }}</a>{% else %}—{% endif %}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="carbooking-hint" id="cb-h-empty" hidden>{{ __('Nenhum resultado para o filtro.', 'carbooking') }}</p>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,146 @@
+{# Calendário mensal no estilo "calendário de mesa" #}
+
+<div id="carbooking-calendar"
+     class="carbooking-agenda"
+     data-cb-pending-url="{{ web_dir }}/ajax/pending.php"
+     data-ajax-month="{{ web_dir }}/ajax/month.php"
+     data-bform="{{ web_dir }}/front/booking.form.php"
+     data-aurl="{{ agenda_url }}"
+     data-month="{{ month }}"
+     data-csrf="{{ csrf }}"
+     {% if is_helpdesk %}data-helpdesk="1"{% endif %}
+     {% if can_create %}data-cancreate="1"{% endif %}
+     {% if can_delete %}data-candelete="1"{% endif %}>
+
+    {# ---------- Abas (conforme os direitos do usuário) ---------- #}
+    <div class="carbooking-tabs">
+        <button type="button" class="carbooking-back" data-home="{{ web_dir }}/front/calendar.php"><i class="ti ti-arrow-left"></i> {{ __('Voltar', 'carbooking') }}</button>
+        <span class="carbooking-tab is-active"><i class="ti ti-calendar-month"></i> {{ __('Calendário', 'carbooking') }}</span>
+        <a class="carbooking-tab" href="{{ web_dir }}/front/booking.php"><i class="ti ti-list-check"></i> {{ __('Agendamentos', 'carbooking') }}</a>
+        {% if can_manage_cars %}
+            <a class="carbooking-tab" href="{{ web_dir }}/front/car.php"><i class="ti ti-car"></i> {{ __('Frota', 'carbooking') }}</a>
+        {% endif %}
+        {% if can_view_analytics %}
+            <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
+        {% endif %}
+        <a class="carbooking-tab" href="{{ web_dir }}/front/history.php"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</a>
+    </div>
+
+
+    {# ---------- Cabeçalho: mês grande + navegação ---------- #}
+    <div class="carbooking-cal-bar">
+        <button type="button" class="carbooking-cal-arrow" data-nav="-1" title="{{ __('Mês anterior', 'carbooking') }}"><i class="ti ti-chevron-left"></i></button>
+        <h2 id="carbooking-cal-title" class="carbooking-cal-monthtitle"></h2>
+        <button type="button" class="carbooking-cal-arrow" data-nav="1" title="{{ __('Próximo mês', 'carbooking') }}"><i class="ti ti-chevron-right"></i></button>
+        <button type="button" class="carbooking-cal-today" data-nav="today">{{ __('Hoje', 'carbooking') }}</button>
+    </div>
+
+    {# ---------- Legenda de cores ---------- #}
+    <div class="carbooking-legend">
+        <span class="carbooking-legend__item"><span class="carbooking-dot dot-approved"></span> {{ __('Aprovado', 'carbooking') }}</span>
+        <span class="carbooking-legend__item"><span class="carbooking-dot dot-pending"></span> {{ __('Pendente', 'carbooking') }}</span>
+        <span class="carbooking-legend__item"><span class="carbooking-dot dot-arrived"></span> {{ __('Chegado', 'carbooking') }}</span>
+        <span class="carbooking-legend__item"><span class="carbooking-dot dot-conflict"></span> {{ __('Em conflito', 'carbooking') }}</span>
+    </div>
+
+    {# ---------- Folha do calendário ---------- #}
+    <div class="carbooking-sheet">
+        <div id="carbooking-grid" class="carbooking-grid">
+            <div class="carbooking-grid-loading"><span class="carbooking-spinner"></span></div>
+        </div>
+    </div>
+
+    {# ---------- Popup (modal) de agendamento do dia ---------- #}
+    <div id="carbooking-day-modal" class="carbooking-modal" hidden>
+        <div class="carbooking-modal__backdrop" data-close></div>
+        <div class="carbooking-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="carbooking-modal-title">
+            <div class="carbooking-modal__head">
+                <h3 id="carbooking-modal-title"></h3>
+                <button type="button" class="carbooking-modal__close" data-close aria-label="{{ __('Fechar', 'carbooking') }}"><i class="ti ti-x"></i></button>
+            </div>
+            <div class="carbooking-modal__body">
+              <div class="carbooking-modal__cols">
+
+                {# Coluna 1: agendamentos já existentes neste dia (preenchido via JS) #}
+                <div class="carbooking-modal__col-existing">
+                    <h4 class="carbooking-modal__coltitle"><i class="ti ti-list"></i> {{ __('Agendamentos deste dia', 'carbooking') }}</h4>
+                    <div id="carbooking-modal-existing" class="carbooking-day-list"></div>
+                </div>
+
+                {# Coluna 2: formulário de novo agendamento #}
+                <div class="carbooking-modal__col-form">
+                {% if can_create %}
+                    {% if cars is empty %}
+                        <div class="carbooking-empty">
+                            <i class="ti ti-car-off"></i>
+                            <p>{{ __('Nenhum carro cadastrado ainda.', 'carbooking') }}</p>
+                        </div>
+                    {% else %}
+                        <form method="post" action="{{ web_dir }}/front/booking.form.php" class="carbooking-form" id="carbooking-modal-form">
+                            <input type="hidden" name="add" value="1">
+                            <input type="hidden" name="_from_calendar" value="1">
+                            <input type="hidden" name="_calendar_month" id="carbooking-modal-month" value="{{ month }}">
+                            <input type="hidden" name="_agenda_date" id="carbooking-modal-date" value="">
+                            <input type="hidden" name="_glpi_csrf_token" value="{{ csrf }}">
+                            {# combinados pelo JS a partir de data + hora #}
+                            <input type="hidden" name="date_departure" id="cb-m-dep">
+                            <input type="hidden" name="date_arrival" id="cb-m-arr">
+
+                            <h4 class="carbooking-modal__formtitle"><i class="ti ti-calendar-plus"></i> {{ __('Novo agendamento', 'carbooking') }}</h4>
+
+                            <label class="form-label" for="cb-m-car">1. {{ __('Qual carro?', 'carbooking') }}</label>
+                            <div class="carbooking-carpick">
+                                <select class="form-select" id="cb-m-car" name="plugin_carbooking_cars_id" required>
+                                    <option value="">{{ __('Selecione…', 'carbooking') }}</option>
+                                    {% for id, car in cars %}
+                                        <option value="{{ id }}" data-img="{{ car.picture_url }}">{{ car.name }}{% if car.plate %} · {{ car.plate }}{% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                                <img id="cb-m-car-img" class="carbooking-car-thumb" alt="" hidden>
+                            </div>
+
+                            <label class="form-label" for="cb-m-sector">2. {{ __('Qual setor?', 'carbooking') }}</label>
+                            <select class="form-select" id="cb-m-sector" name="groups_id">
+                                <option value="0">{{ __('— Selecione o setor —', 'carbooking') }}</option>
+                                {% for id, gname in groups %}
+                                    <option value="{{ id }}">{{ gname }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label class="form-label">3. {{ __('Saída — dia e hora', 'carbooking') }}</label>
+                            <div class="carbooking-datetime">
+                                <input type="date" class="form-control" id="cb-m-date" aria-label="{{ __('Dia da saída', 'carbooking') }}" required>
+                                <input type="time" class="form-control" id="cb-m-time" aria-label="{{ __('Hora da saída', 'carbooking') }}" value="08:00" required>
+                            </div>
+
+                            <div id="cb-m-conflict" class="carbooking-conflict" hidden>
+                                <i class="ti ti-alert-triangle"></i> <span></span>
+                            </div>
+
+                            <label class="form-label">{{ __('Chegada — dia e hora', 'carbooking') }} <span class="carbooking-optional">{{ __('(opcional — preenche o intervalo até a volta)', 'carbooking') }}</span></label>
+                            <div class="carbooking-datetime">
+                                <input type="date" class="form-control" id="cb-m-adate" aria-label="{{ __('Dia da chegada', 'carbooking') }}">
+                                <input type="time" class="form-control" id="cb-m-atime" aria-label="{{ __('Hora da chegada', 'carbooking') }}">
+                            </div>
+
+                            <label class="form-label" for="cb-m-dest">{{ __('Destino', 'carbooking') }}</label>
+                            <input type="text" class="form-control" id="cb-m-dest" name="destination" placeholder="{{ __('Para onde o carro vai', 'carbooking') }}">
+
+                            <label class="form-label" for="cb-m-reason">{{ __('Motivo', 'carbooking') }}</label>
+                            <textarea class="form-control" id="cb-m-reason" name="reason" rows="2" placeholder="{{ __('Ex.: transporte de materiais', 'carbooking') }}"></textarea>
+
+                            <button type="submit" class="carbooking-submit">
+                                <i class="ti ti-send"></i> {{ __('Solicitar agendamento', 'carbooking') }}
+                            </button>
+                            <p class="carbooking-hint">{{ __('O pedido fica pendente até a aprovação do administrador.', 'carbooking') }}</p>
+                        </form>
+                    {% endif %}
+                {% endif %}
+                </div>
+
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+

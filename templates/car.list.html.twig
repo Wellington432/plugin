@@ -1,0 +1,56 @@
+{# Frota — grid de cartões de carros #}
+
+<div id="carbooking-fleet" class="carbooking-agenda" data-cb-pending-url="{{ web_dir }}/ajax/pending.php">
+
+    {# ---------- Abas ---------- #}
+    <div class="carbooking-tabs">
+        <button type="button" class="carbooking-back" data-home="{{ web_dir }}/front/calendar.php"><i class="ti ti-arrow-left"></i> {{ __('Voltar', 'carbooking') }}</button>
+        <a class="carbooking-tab" href="{{ web_dir }}/front/calendar.php"><i class="ti ti-calendar-month"></i> {{ __('Calendário', 'carbooking') }}</a>
+        <a class="carbooking-tab" href="{{ web_dir }}/front/booking.php"><i class="ti ti-list-check"></i> {{ __('Agendamentos', 'carbooking') }}</a>
+        <span class="carbooking-tab is-active"><i class="ti ti-car"></i> {{ __('Frota', 'carbooking') }}</span>
+        {% if can_view_analytics %}
+            <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
+        {% endif %}
+        <a class="carbooking-tab" href="{{ web_dir }}/front/history.php"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</a>
+        <span class="carbooking-build">v1.0.61</span>
+    </div>
+
+    <div class="carbooking-fleet-head">
+        <h2><i class="ti ti-car"></i> {{ __('Frota de carros', 'carbooking') }} <span class="carbooking-blist-count">{{ cars|length }}</span></h2>
+        {% if can_edit %}
+            <a href="{{ web_dir }}/front/car.form.php" class="carbooking-export-btn" style="background:linear-gradient(135deg,#4263eb,#6366f1);box-shadow:0 8px 18px -8px rgba(66,99,235,.8);">
+                <i class="ti ti-plus"></i> {{ __('Cadastrar carro', 'carbooking') }}
+            </a>
+        {% endif %}
+    </div>
+
+    {% if cars is empty %}
+        <div class="carbooking-empty">
+            <i class="ti ti-car-off"></i>
+            <p>{{ __('Nenhum carro cadastrado ainda.', 'carbooking') }}</p>
+        </div>
+    {% else %}
+        <div class="carbooking-fleet-grid">
+            {% for car in cars %}
+                <a class="carbooking-fleet-card {{ car.is_active ? '' : 'is-off' }}" href="{{ web_dir }}/front/car.form.php?id={{ car.id }}">
+                    <div class="carbooking-fleet-card__img">
+                        {% if car.picture_url %}
+                            <img src="{{ car.picture_url }}" alt="{{ car.name }}">
+                        {% else %}
+                            <i class="ti ti-car"></i>
+                        {% endif %}
+                        {% if not car.is_active %}<span class="carbooking-fleet-off">{{ __('Inativo', 'carbooking') }}</span>{% endif %}
+                    </div>
+                    <div class="carbooking-fleet-card__body">
+                        <strong>{{ car.name }}</strong>
+                        <div class="carbooking-fleet-meta">
+                            {% if car.plate %}<span class="carbooking-plate">{{ car.plate }}</span>{% endif %}
+                            {% if car.model_year %}<span class="carbooking-fleet-year"><i class="ti ti-calendar"></i> {{ car.model_year }}</span>{% endif %}
+                        </div>
+                    </div>
+                    {% if can_edit %}<span class="carbooking-fleet-edit"><i class="ti ti-pencil"></i> {{ __('Editar', 'carbooking') }}</span>{% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
