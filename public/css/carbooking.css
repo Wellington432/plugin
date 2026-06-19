@@ -1126,3 +1126,6 @@ body.carbooking-modal-open { overflow: hidden; }
     padding: 0.45rem 0.2rem;
 }
 .carbooking-tablefilter .carbooking-filters { margin-top: 0.2rem; }
+
+/* ---------- v1.0.63: voltar ao calendário no formulário ---------- */
+.carbooking-formtop { margin-bottom: 1rem; }

@@ -4,6 +4,11 @@
 {% set editable = is_new or status == 1 %}
 
 <div class="carbooking-bookingform">
+
+    <div class="carbooking-formtop">
+        <a class="carbooking-back" href="{{ web_dir }}/front/calendar.php"><i class="ti ti-arrow-left"></i> {{ __('Voltar para o calendário', 'carbooking') }}</a>
+    </div>
+
     <form method="post" action="{{ web_dir }}/front/booking.form.php">
 
         {% if not is_new %}
