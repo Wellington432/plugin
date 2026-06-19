@@ -14,7 +14,7 @@
             <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
         {% endif %}
         <a class="carbooking-tab" href="{{ web_dir }}/front/history.php"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</a>
-        <span class="carbooking-build">v1.0.64</span>
+        <span class="carbooking-build">v1.0.65</span>
     </div>
 
     {# ---------- Como funciona (passo a passo simples) ---------- #}
@@ -79,6 +79,12 @@
         {% if groups.arrived is empty %}
             <p class="carbooking-blist-empty">{{ __('Nenhuma chegada registrada.', 'carbooking') }}</p>
         {% else %}
+            <div class="carbooking-tablefilter">
+            <div class="carbooking-filters">
+                <label>{{ __('Data', 'carbooking') }}<input type="date" class="cb-f-date form-control"></label>
+                <label>{{ __('A partir da hora', 'carbooking') }}<input type="time" class="cb-f-time form-control"></label>
+                <button type="button" class="carbooking-back cb-f-clear" style="align-self:flex-end;"><i class="ti ti-eraser"></i> {{ __('Limpar', 'carbooking') }}</button>
+            </div>
             <table class="carbooking-arrived-table">
                 <thead>
                     <tr>
@@ -93,7 +99,7 @@
                 </thead>
                 <tbody>
                 {% for b in groups.arrived %}
-                    <tr>
+                    <tr data-date="{{ b.departure|slice(0,10) }}" data-time="{{ b.departure|slice(11,5) }}" data-status="{{ b.status }}">
                         <td><b>{{ b.departure|slice(8,2) }}/{{ b.departure|slice(5,2) }}</b> {{ b.departure|slice(11,5) }}</td>
                         <td>{{ b.car }}</td>
                         <td>{{ b.user }}</td>
@@ -114,6 +120,7 @@
                 {% endfor %}
                 </tbody>
             </table>
+            </div>
         {% endif %}
     </section>
 
