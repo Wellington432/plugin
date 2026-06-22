@@ -275,7 +275,7 @@
                     + '<div class="carbooking-day-item__meta"><i class="ti ti-clock"></i> ' + esc(period)
                     + (b.destination ? ' &nbsp;·&nbsp; <i class="ti ti-map-pin"></i> ' + esc(b.destination) : '')
                     + '</div>'
-                    + (b.reason ? '<div class="carbooking-day-item__reason"><i class="ti ti-note"></i> ' + esc(b.reason) + '</div>' : '')
+                    + (b.status === 4 && b.note ? '<div class="carbooking-day-item__reason"><i class="ti ti-info-circle"></i> Motivo: ' + esc(b.note) + '</div>' : '')
                     + '</div>'
                     + '<div class="carbooking-day-item__actions">' + open + cancelBtn + uploadSheetBtn + '</div>'
                     + '</div>';
