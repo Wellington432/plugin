@@ -1244,7 +1244,7 @@ class Booking extends CommonDBTM
         // Frota — somente administração (quem pode ver carros).
         if (Car::canView()) {
             $menu['options']['car'] = [
-                'title' => Car::getTypeName(2),
+                'title' => __('Frota', 'carbooking'),
                 'icon'  => Car::getIcon(),
                 'page'  => Car::getSearchURL(false),
                 'links' => [

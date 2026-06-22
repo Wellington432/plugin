@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        {% if can_approve and status in [2, 5] %}
+        {% if can_approve and status == 5 %}
         <div class="carbooking-sheetbox">
             <label class="form-label">{{ __('Folha de agendamento', 'carbooking') }}</label>
             {% if item.fields['arrival_sheet'] %}
@@ -135,7 +135,8 @@
                 <div><span class="lbl"><i class="ti ti-building"></i> {{ __('Setor', 'carbooking') }}</span>
                      <strong>{{ groups[item.fields['groups_id']] ?? '—' }}</strong></div>
                 <div><span class="lbl"><i class="ti ti-car"></i> {{ __('Carro', 'carbooking') }}</span>
-                     <strong>{{ cars[item.fields['plugin_carbooking_cars_id']] ?? '—' }}</strong></div>
+                     {% set carrow = cars[item.fields['plugin_carbooking_cars_id']] %}
+                     <strong>{{ carrow ? carrow.name ~ (carrow.plate ? ' · ' ~ carrow.plate : '') : '—' }}</strong></div>
                 <div><span class="lbl"><i class="ti ti-map-pin"></i> {{ __('Destino', 'carbooking') }}</span>
                      <strong>{{ item.fields['destination'] ?: '—' }}</strong></div>
                 <div><span class="lbl"><i class="ti ti-logout"></i> {{ __('Saída', 'carbooking') }}</span>

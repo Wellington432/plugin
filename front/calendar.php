@@ -23,7 +23,7 @@ if (Session::getCurrentInterface() === 'helpdesk' && method_exists(Html::class, 
         __('Calendário', 'carbooking'),
         $_SERVER['PHP_SELF'],
         'tools',
-        Car::class,
+        Booking::class,
         'calendar'
     );
 }

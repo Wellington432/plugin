@@ -24,7 +24,7 @@ if (Session::getCurrentInterface() === 'helpdesk' && method_exists(Html::class, 
         __('Análise', 'carbooking'),
         $_SERVER['PHP_SELF'],
         'tools',
-        Car::class,
+        Booking::class,
         'analytics'
     );
 }

@@ -93,6 +93,10 @@ if (isset($_POST['add'])) {
         Html::back();
     }
     if ($booking->getFromDB((int) $_POST['id'])) {
+        if ((int) ($booking->fields['status'] ?? 0) !== Booking::STATUS_ARRIVED) {
+            Session::addMessageAfterRedirect(__('A folha só pode ser anexada após marcar o retorno.', 'carbooking'), false, ERROR);
+            Html::back();
+        }
         if (!empty($_FILES['arrival_sheet']['name'])) {
             $sheet = Booking::storeArrivalSheet((int) $_POST['id'], $_FILES['arrival_sheet']);
             if ($sheet !== null) {
@@ -140,7 +144,7 @@ if (isset($_POST['add'])) {
         $_SERVER['PHP_SELF'],
         'tools',
         Booking::class,
-        'booking'
+        'calendar'
     );
 
     $booking->display(['id' => $ID]);

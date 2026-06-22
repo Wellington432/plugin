@@ -13,7 +13,7 @@ if (Session::getCurrentInterface() === 'helpdesk' && method_exists(Html::class, 
     Html::helpHeader(Car::getTypeName(2));
     $used_help = true;
 } else {
-    Html::header(Car::getTypeName(2), $_SERVER['PHP_SELF'], 'tools', Car::class, 'car');
+    Html::header(Car::getTypeName(2), $_SERVER['PHP_SELF'], 'tools', Booking::class, 'car');
 }
 
 TemplateRenderer::getInstance()->display('@carbooking/car.list.html.twig', [
