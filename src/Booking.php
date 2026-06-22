@@ -1226,25 +1226,12 @@ class Booking extends CommonDBTM
             'options' => [],
         ];
 
-        // Calendário — tela principal: visão mensal e criação de agendamentos.
+        // Calendário — tela principal: agora também lista os agendamentos abaixo.
         $menu['options']['calendar'] = [
             'title' => __('Calendário', 'carbooking'),
             'icon'  => 'ti ti-calendar-month',
             'page'  => $web . '/front/calendar.php',
         ];
-
-        // Agendamentos — logo abaixo do Calendário.
-        if (self::canView()) {
-            $menu['options']['booking'] = [
-                'title' => self::getTypeName(2),
-                'icon'  => self::getIcon(),
-                'page'  => self::getSearchURL(false),
-                'links' => [
-                    'search' => self::getSearchURL(false),
-                    'add'    => self::getFormURL(false),
-                ],
-            ];
-        }
 
         // Frota — somente administração (quem pode ver carros).
         if (Car::canView()) {

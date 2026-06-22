@@ -1156,3 +1156,10 @@ body.carbooking-modal-open { overflow: hidden; }
 /* ---------- v1.0.67: info do arquivo na prévia ---------- */
 .carbooking-fileinfo { margin-top: 0.5rem; font-size: 0.82rem; line-height: 1.35; color: var(--cb-ink); }
 .carbooking-fileinfo span { color: var(--cb-muted); }
+
+/* ---------- v1.0.68: Agendamentos embutidos abaixo do calendário ---------- */
+.carbooking-blist-embed { margin-top: 2rem; }
+.carbooking-blist-title {
+    display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;
+    margin: 0 0 1rem; padding-top: 1.2rem; border-top: 2px solid var(--cb-border);
+}

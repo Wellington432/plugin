@@ -1,21 +1,7 @@
-{# Lista de agendamentos por status + tabela de chegadas (sem macro) #}
+{# Conteúdo dos Agendamentos embutido abaixo do calendário (sem abas) #}
+<div id="carbooking-booking-list" class="carbooking-blist-embed">
 
-<div id="carbooking-booking-list" class="carbooking-agenda">
-
-    {# ---------- Abas ---------- #}
-    <div class="carbooking-tabs">
-        <button type="button" class="carbooking-back" data-home="{{ web_dir }}/front/calendar.php"><i class="ti ti-arrow-left"></i> {{ __('Voltar', 'carbooking') }}</button>
-        <a class="carbooking-tab" href="{{ web_dir }}/front/calendar.php"><i class="ti ti-calendar-month"></i> {{ __('Calendário', 'carbooking') }}</a>
-        <span class="carbooking-tab is-active"><i class="ti ti-list-check"></i> {{ __('Agendamentos', 'carbooking') }}</span>
-        {% if can_manage_cars %}
-            <a class="carbooking-tab" href="{{ web_dir }}/front/car.php"><i class="ti ti-car"></i> {{ __('Frota', 'carbooking') }}</a>
-        {% endif %}
-        {% if can_view_analytics %}
-            <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
-        {% endif %}
-        <a class="carbooking-tab" href="{{ web_dir }}/front/history.php"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</a>
-        <span class="carbooking-build">v1.0.68</span>
-    </div>
+    <h2 class="carbooking-blist-title"><i class="ti ti-list-check"></i> {{ __('Agendamentos', 'carbooking') }}</h2>
 
     {# ---------- Como funciona (passo a passo simples) ---------- #}
     <div class="carbooking-help">
@@ -41,30 +27,30 @@
     <div class="carbooking-blist-cols">
 
         <section class="carbooking-blist-col col-pending">
-            <header class="carbooking-blist-head"><i class="ti ti-clock"></i> {{ __('Pendentes', 'carbooking') }} <span class="carbooking-blist-count">{{ groups.pending|length }}</span></header>
-            {% if groups.pending is empty %}
+            <header class="carbooking-blist-head"><i class="ti ti-clock"></i> {{ __('Pendentes', 'carbooking') }} <span class="carbooking-blist-count">{{ blist.pending|length }}</span></header>
+            {% if blist.pending is empty %}
                 <p class="carbooking-blist-empty">{{ __('Nenhum pendente.', 'carbooking') }}</p>
             {% else %}
-                {% for b in groups.pending %}{% include '@carbooking/booking.row.html.twig' with {'b': b, 'web_dir': web_dir, 'can_approve': can_approve, 'csrf': csrf} %}{% endfor %}
+                {% for b in blist.pending %}{% include '@carbooking/booking.row.html.twig' with {'b': b, 'web_dir': web_dir, 'can_approve': can_approve, 'csrf': csrf} %}{% endfor %}
             {% endif %}
         </section>
 
         <section class="carbooking-blist-col col-approved">
-            <header class="carbooking-blist-head"><i class="ti ti-circle-check"></i> {{ __('Aprovados', 'carbooking') }} <span class="carbooking-blist-count">{{ groups.approved|length }}</span></header>
-            {% if groups.approved is empty %}
+            <header class="carbooking-blist-head"><i class="ti ti-circle-check"></i> {{ __('Aprovados', 'carbooking') }} <span class="carbooking-blist-count">{{ blist.approved|length }}</span></header>
+            {% if blist.approved is empty %}
                 <p class="carbooking-blist-empty">{{ __('Nenhum aprovado.', 'carbooking') }}</p>
             {% else %}
-                {% for b in groups.approved %}{% include '@carbooking/booking.row.html.twig' with {'b': b, 'web_dir': web_dir, 'can_approve': can_approve, 'csrf': csrf} %}{% endfor %}
+                {% for b in blist.approved %}{% include '@carbooking/booking.row.html.twig' with {'b': b, 'web_dir': web_dir, 'can_approve': can_approve, 'csrf': csrf} %}{% endfor %}
             {% endif %}
         </section>
 
         <section class="carbooking-blist-col col-rejected">
-            <header class="carbooking-blist-head"><i class="ti ti-circle-x"></i> {{ __('Recusados / Cancelados', 'carbooking') }} <span class="carbooking-blist-count">{{ groups.rejected|length + groups.cancelled|length }}</span></header>
-            {% if groups.rejected is empty and groups.cancelled is empty %}
+            <header class="carbooking-blist-head"><i class="ti ti-circle-x"></i> {{ __('Recusados / Cancelados', 'carbooking') }} <span class="carbooking-blist-count">{{ blist.rejected|length + blist.cancelled|length }}</span></header>
+            {% if blist.rejected is empty and blist.cancelled is empty %}
                 <p class="carbooking-blist-empty">{{ __('Nada aqui.', 'carbooking') }}</p>
             {% else %}
-                {% for b in groups.rejected %}{% include '@carbooking/booking.row.html.twig' with {'b': b, 'web_dir': web_dir, 'can_approve': can_approve, 'csrf': csrf} %}{% endfor %}
-                {% for b in groups.cancelled %}{% include '@carbooking/booking.row.html.twig' with {'b': b, 'web_dir': web_dir, 'can_approve': can_approve, 'csrf': csrf} %}{% endfor %}
+                {% for b in blist.rejected %}{% include '@carbooking/booking.row.html.twig' with {'b': b, 'web_dir': web_dir, 'can_approve': can_approve, 'csrf': csrf} %}{% endfor %}
+                {% for b in blist.cancelled %}{% include '@carbooking/booking.row.html.twig' with {'b': b, 'web_dir': web_dir, 'can_approve': can_approve, 'csrf': csrf} %}{% endfor %}
             {% endif %}
         </section>
 
@@ -74,9 +60,9 @@
     <section id="carbooking-arrived-section" class="carbooking-arrived-section">
         <header class="carbooking-blist-head carbooking-arrived-head">
             <i class="ti ti-flag-check"></i> {{ __('Chegados', 'carbooking') }}
-            <span class="carbooking-blist-count">{{ groups.arrived|length }}</span>
+            <span class="carbooking-blist-count">{{ blist.arrived|length }}</span>
         </header>
-        {% if groups.arrived is empty %}
+        {% if blist.arrived is empty %}
             <p class="carbooking-blist-empty">{{ __('Nenhuma chegada registrada.', 'carbooking') }}</p>
         {% else %}
             <div class="carbooking-tablefilter">
@@ -98,7 +84,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for b in groups.arrived %}
+                {% for b in blist.arrived %}
                     <tr data-date="{{ b.departure|slice(0,10) }}" data-time="{{ b.departure|slice(11,5) }}" data-status="{{ b.status }}">
                         <td><b>{{ b.departure|slice(8,2) }}/{{ b.departure|slice(5,2) }}</b> {{ b.departure|slice(11,5) }}</td>
                         <td>{{ b.car }}</td>

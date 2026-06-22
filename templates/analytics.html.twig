@@ -28,7 +28,6 @@
     <div class="carbooking-tabs">
         <button type="button" class="carbooking-back" data-home="{{ web_dir }}/front/calendar.php"><i class="ti ti-arrow-left"></i> {{ __('Voltar', 'carbooking') }}</button>
         <a class="carbooking-tab" href="{{ web_dir }}/front/calendar.php"><i class="ti ti-calendar-month"></i> {{ __('Calendário', 'carbooking') }}</a>
-        <a class="carbooking-tab" href="{{ web_dir }}/front/booking.php"><i class="ti ti-list-check"></i> {{ __('Agendamentos', 'carbooking') }}</a>
         {% if can_manage_cars %}
             <a class="carbooking-tab" href="{{ web_dir }}/front/car.php"><i class="ti ti-car"></i> {{ __('Frota', 'carbooking') }}</a>
         {% endif %}

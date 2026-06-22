@@ -38,6 +38,9 @@ TemplateRenderer::getInstance()->display('@carbooking/calendar.html.twig', [
     'can_delete'         => Session::haveRight(Booking::$rightname, PURGE),
     'cars'               => Car::getActiveCars(),
     'groups'             => Booking::getGroupsList(),
+    'blist'              => Booking::getGroupedByStatus(),
+    'pending_count'      => Booking::countPending(),
+    'can_approve'        => Booking::canApprove(),
     'agenda_url'         => Plugin::getWebDir('carbooking') . '/front/agenda.php',
     'csrf'               => Session::getNewCSRFToken(),
 ]);

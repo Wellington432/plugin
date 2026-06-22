@@ -82,7 +82,7 @@ if (isset($_POST['add'])) {
         }
         $booking->markReturned($sheet);
     }
-    Html::redirect(Plugin::getWebDir('carbooking') . '/front/booking.php#carbooking-arrived-section');
+    Html::redirect(Plugin::getWebDir('carbooking') . '/front/calendar.php#carbooking-arrived-section');
 
 } elseif (isset($_POST['upload_sheet'])) {
     // Adiciona folha a um agendamento já marcado como chegada (sem folha ainda).

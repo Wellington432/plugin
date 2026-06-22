@@ -16,7 +16,6 @@
     <div class="carbooking-tabs">
         <button type="button" class="carbooking-back" data-home="{{ web_dir }}/front/calendar.php"><i class="ti ti-arrow-left"></i> {{ __('Voltar', 'carbooking') }}</button>
         <span class="carbooking-tab is-active"><i class="ti ti-calendar-month"></i> {{ __('Calendário', 'carbooking') }}</span>
-        <a class="carbooking-tab" href="{{ web_dir }}/front/booking.php"><i class="ti ti-list-check"></i> {{ __('Agendamentos', 'carbooking') }}</a>
         {% if can_manage_cars %}
             <a class="carbooking-tab" href="{{ web_dir }}/front/car.php"><i class="ti ti-car"></i> {{ __('Frota', 'carbooking') }}</a>
         {% endif %}
@@ -24,6 +23,7 @@
             <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
         {% endif %}
         <a class="carbooking-tab" href="{{ web_dir }}/front/history.php"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</a>
+        <span class="carbooking-build">v1.0.68</span>
     </div>
 
 
@@ -49,6 +49,9 @@
             <div class="carbooking-grid-loading"><span class="carbooking-spinner"></span></div>
         </div>
     </div>
+
+    {# ---------- Agendamentos (abaixo do calendário) ---------- #}
+    {% include '@carbooking/booking.lists.html.twig' %}
 
     {# ---------- Popup (modal) de agendamento do dia ---------- #}
     <div id="carbooking-day-modal" class="carbooking-modal" hidden>
