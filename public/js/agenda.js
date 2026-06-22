@@ -85,27 +85,50 @@
         overlay.innerHTML =
             '<div class="carbooking-modal__backdrop" data-x></div>'
           + '<div class="carbooking-modal__dialog" style="max-width:460px;">'
-          + '<div class="carbooking-modal__head"><h3>Marcar chegada</h3>'
+          + '<div class="carbooking-modal__head"><h3>Marcar retorno</h3>'
           + '<button type="button" class="carbooking-modal__close" data-x><i class="ti ti-x"></i></button></div>'
           + '<div class="carbooking-modal__body">'
-          + '<p>Confirma a chegada do carro? O horário é registrado automaticamente.</p>'
+          + '<p>Confirme o retorno do carro. A data e a hora vêm preenchidas com o momento atual, mas você pode ajustar.</p>'
           + '<form method="post" action="' + bform + '" enctype="multipart/form-data">'
           + '<input type="hidden" name="id" value="' + id + '">'
           + '<input type="hidden" name="arrive" value="1">'
           + '<input type="hidden" name="_glpi_csrf_token" value="' + csrf + '">'
           + '<input type="hidden" name="_redirect_anchor" value="carbooking-arrived-section">'
-          + '<label class="form-label"><b>Folha de agendamento</b> (opcional)</label>'
+          + '<label class="form-label"><b>Data e hora do retorno</b></label>'
+          + '<div class="carbooking-datetime">'
+          + '<input type="date" class="form-control cb-rdate">'
+          + '<input type="time" class="form-control cb-rtime">'
+          + '</div>'
+          + '<input type="hidden" name="returned_at" class="cb-rwhen">'
+          + '<label class="form-label" style="margin-top:0.7rem;"><b>Folha de agendamento</b> (opcional)</label>'
           + '<input type="file" name="arrival_sheet" class="form-control cb-file" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.odt,.ods">'
           + '<div class="carbooking-filepreview" hidden></div>'
           + '<label class="carbooking-check"><input type="checkbox" class="cb-confirm" name="confirm_ok" value="1"> Confirmo que as informações enviadas estão corretas.</label>'
-          + '<button type="submit" class="carbooking-submit cb-go" style="margin-top:0.8rem;" disabled><i class="ti ti-flag-check"></i> Confirmar chegada</button>'
+          + '<button type="submit" class="carbooking-submit cb-go" style="margin-top:0.8rem;" disabled><i class="ti ti-flag-check"></i> Confirmar retorno</button>'
           + '</form></div></div>';
         document.body.appendChild(overlay);
         document.body.classList.add('carbooking-modal-open');
         wireFileConfirm(overlay, false);
+        wireArrivalWhen(overlay);
         function close() { overlay.remove(); document.body.classList.remove('carbooking-modal-open'); }
         overlay.querySelectorAll('[data-x]').forEach(function (el) { el.addEventListener('click', close); });
     });
+
+    /* Preenche data/hora da chegada com o momento atual e mantém sincronizado. */
+    function wireArrivalWhen(overlay) {
+        var d = overlay.querySelector('.cb-rdate');
+        var t = overlay.querySelector('.cb-rtime');
+        var hid = overlay.querySelector('.cb-rwhen');
+        if (!d || !t || !hid) { return; }
+        var now = new Date();
+        function p(n) { return n < 10 ? '0' + n : '' + n; }
+        d.value = now.getFullYear() + '-' + p(now.getMonth() + 1) + '-' + p(now.getDate());
+        t.value = p(now.getHours()) + ':' + p(now.getMinutes());
+        function sync() { hid.value = (d.value && t.value) ? (d.value + 'T' + t.value) : ''; }
+        sync();
+        d.addEventListener('change', sync);
+        t.addEventListener('change', sync);
+    }
 
     /* Adicionar folha pelo calendário: prévia do arquivo + confirmação obrigatória. */
     document.addEventListener('click', function (e) {
@@ -232,6 +255,7 @@
             var fDate = document.getElementById('cb-h-date');
             var fTime = document.getElementById('cb-h-time');
             var fStatus = document.getElementById('cb-h-status');
+            var fCar = document.getElementById('cb-h-car');
             var clear = document.getElementById('cb-h-clear');
             var empty = document.getElementById('cb-h-empty');
             var rows = root.querySelectorAll('#cb-h-table tbody tr');
@@ -241,11 +265,13 @@
                 var d = fDate ? fDate.value : '';
                 var t = fTime ? fTime.value : '';
                 var s = fStatus ? fStatus.value : '';
+                var car = fCar ? fCar.value : '';
                 var shown = 0;
                 rows.forEach(function (tr) {
                     var ok = (!d || tr.dataset.date === d)
                         && (!s || tr.dataset.status === s)
-                        && (!t || (tr.dataset.time || '') >= t);
+                        && (!t || (tr.dataset.time || '') >= t)
+                        && (!car || tr.dataset.car === car);
                     tr.style.display = ok ? '' : 'none';
                     if (ok) { shown++; }
                 });
@@ -254,11 +280,13 @@
             if (fDate) { fDate.addEventListener('change', apply); }
             if (fTime) { fTime.addEventListener('change', apply); }
             if (fStatus) { fStatus.addEventListener('change', apply); }
+            if (fCar) { fCar.addEventListener('change', apply); }
             if (clear) {
                 clear.addEventListener('click', function () {
                     if (fDate) { fDate.value = ''; }
                     if (fTime) { fTime.value = ''; }
                     if (fStatus) { fStatus.value = ''; }
+                    if (fCar) { fCar.value = ''; }
                     apply();
                 });
             }

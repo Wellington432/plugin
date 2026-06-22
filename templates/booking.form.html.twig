@@ -74,6 +74,22 @@
             </div>
         </div>
 
+        {% if can_approve and status in [2, 5] %}
+        <div class="carbooking-sheetbox">
+            <label class="form-label">{{ __('Folha de agendamento', 'carbooking') }}</label>
+            <div class="carbooking-sheetbox__row">
+                {% if item.fields['arrival_sheet'] %}
+                    <span class="carbooking-sheet-ok"><i class="ti ti-paperclip"></i> {{ __('Folha anexada', 'carbooking') }}</span>
+                    <a class="carbooking-btn-info" href="{{ web_dir }}/front/sheet.php?id={{ item.fields['id'] }}"><i class="ti ti-download"></i> {{ __('Baixar folha', 'carbooking') }}</a>
+                    <button type="button" class="carbooking-btn-info" data-cb-attach data-id="{{ item.fields['id'] }}" data-bform="{{ web_dir }}/front/booking.form.php" data-csrf="{{ csrf_token() }}"><i class="ti ti-replace"></i> {{ __('Trocar folha', 'carbooking') }}</button>
+                {% else %}
+                    <span class="text-muted">{{ __('Nenhuma folha anexada.', 'carbooking') }}</span>
+                    <button type="button" class="carbooking-btn-info" data-cb-attach data-id="{{ item.fields['id'] }}" data-bform="{{ web_dir }}/front/booking.form.php" data-csrf="{{ csrf_token() }}"><i class="ti ti-paperclip"></i> {{ __('Anexar folha', 'carbooking') }}</button>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
         <div class="carbooking-formactions">
             {% if is_new %}
                 <button type="submit" name="add" value="1" class="btn btn-primary">

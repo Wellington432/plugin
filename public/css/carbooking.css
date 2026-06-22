@@ -1163,3 +1163,15 @@ body.carbooking-modal-open { overflow: hidden; }
     display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;
     margin: 0 0 1rem; padding-top: 1.2rem; border-top: 2px solid var(--cb-border);
 }
+
+/* ---------- v1.0.70: cor por carro, folha no form, retorno ---------- */
+.carbooking-dot.dot-multicar {
+    background: conic-gradient(#4263eb, #0ca678, #e8590c, #7048e8, #d6336c, #4263eb);
+}
+.carbooking-legend__hint { color: var(--cb-muted); font-size: 0.8rem; }
+.carbooking-sheetbox {
+    margin: 0.4rem 0 1rem; padding: 0.8rem 1rem; border: 1px solid var(--cb-border);
+    border-radius: 12px; background: var(--cb-surface);
+}
+.carbooking-sheetbox__row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.4rem; }
+.carbooking-sheet-ok { color: #2b8a3e; font-weight: 600; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.3rem; }

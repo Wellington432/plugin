@@ -23,7 +23,7 @@
             <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
         {% endif %}
         <a class="carbooking-tab" href="{{ web_dir }}/front/history.php"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</a>
-        <span class="carbooking-build">v1.0.69</span>
+        <span class="carbooking-build">v1.0.70</span>
     </div>
 
 
@@ -37,10 +37,9 @@
 
     {# ---------- Legenda de cores ---------- #}
     <div class="carbooking-legend">
-        <span class="carbooking-legend__item"><span class="carbooking-dot dot-approved"></span> {{ __('Aprovado', 'carbooking') }}</span>
-        <span class="carbooking-legend__item"><span class="carbooking-dot dot-pending"></span> {{ __('Pendente', 'carbooking') }}</span>
-        <span class="carbooking-legend__item"><span class="carbooking-dot dot-arrived"></span> {{ __('Chegado', 'carbooking') }}</span>
+        <span class="carbooking-legend__item"><span class="carbooking-dot dot-multicar"></span> {{ __('Cada carro tem uma cor', 'carbooking') }}</span>
         <span class="carbooking-legend__item"><span class="carbooking-dot dot-conflict"></span> {{ __('Em conflito', 'carbooking') }}</span>
+        <span class="carbooking-legend__item carbooking-legend__hint">{{ __('O status (Pendente, Aprovado, Retorno, Cancelado) aparece ao abrir o dia.', 'carbooking') }}</span>
     </div>
 
     {# ---------- Folha do calendário ---------- #}

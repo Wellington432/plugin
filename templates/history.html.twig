@@ -13,7 +13,7 @@
             <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
         {% endif %}
         <span class="carbooking-tab is-active"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</span>
-        <span class="carbooking-build">v1.0.69</span>
+        <span class="carbooking-build">v1.0.70</span>
     </div>
 
     <div class="carbooking-panel__card carbooking-chartbox">
@@ -38,6 +38,18 @@
                     <option value="4">{{ __('Cancelado', 'carbooking') }}</option>
                 </select>
             </label>
+            <label>{{ __('Carro', 'carbooking') }}
+                {% set cb_seen = [] %}
+                <select id="cb-h-car" class="form-select">
+                    <option value="">{{ __('Todos', 'carbooking') }}</option>
+                    {% for h in history %}
+                        {% if h.car not in cb_seen %}
+                            {% set cb_seen = cb_seen|merge([h.car]) %}
+                            <option value="{{ h.car }}">{{ h.car }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </label>
             <button type="button" id="cb-h-clear" class="carbooking-back" style="align-self:flex-end;"><i class="ti ti-eraser"></i> {{ __('Limpar', 'carbooking') }}</button>
         </div>
 
@@ -52,13 +64,13 @@
                     <th>{{ __('Usuário', 'carbooking') }}</th>
                     <th>{{ __('Carro', 'carbooking') }}</th>
                     <th>{{ __('Status', 'carbooking') }}</th>
-                    <th>{{ __('Chegada', 'carbooking') }}</th>
+                    <th>{{ __('Retorno', 'carbooking') }}</th>
                     <th>{{ __('Aprovação / Cancelamento', 'carbooking') }}</th>
                     <th>{{ __('Folha', 'carbooking') }}</th>
                 </tr></thead>
                 <tbody>
                 {% for h in history %}
-                    <tr data-date="{{ h.date }}" data-time="{{ h.time }}" data-status="{{ h.status }}">
+                    <tr data-date="{{ h.date }}" data-time="{{ h.time }}" data-status="{{ h.status }}" data-car="{{ h.car }}">
                         <td>{{ h.date|slice(8,2) }}/{{ h.date|slice(5,2) }}/{{ h.date|slice(0,4) }}</td>
                         <td>{{ h.time }}{% if h.arrival %} &rarr; {{ h.arrival|slice(11,5) }}{% endif %}</td>
                         <td>{{ h.user }}</td>

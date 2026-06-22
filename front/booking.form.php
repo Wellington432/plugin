@@ -80,7 +80,8 @@ if (isset($_POST['add'])) {
         if (!empty($_FILES['arrival_sheet']['name'])) {
             $sheet = Booking::storeArrivalSheet((int) $_POST['id'], $_FILES['arrival_sheet']);
         }
-        $booking->markReturned($sheet);
+        $when = !empty($_POST['returned_at']) ? str_replace('T', ' ', (string) $_POST['returned_at']) : null;
+        $booking->markReturned($sheet, $when);
     }
     Html::redirect(Plugin::getWebDir('carbooking') . '/front/calendar.php#carbooking-arrived-section');
 

@@ -14,6 +14,23 @@
                   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    var CAR_PALETTE = [
+        '#4263eb', '#0ca678', '#e8590c', '#7048e8', '#1098ad', '#d6336c',
+        '#f59f00', '#37b24d', '#1c7ed6', '#ae3ec9', '#f76707', '#0c8599',
+        '#2b8a3e', '#c2255c', '#5f3dc4', '#0b7285'
+    ];
+    function carColor(b) {
+        var key = b && b.car_id ? b.car_id : 0;
+        if (!key && b && b.car) {
+            for (var i = 0; i < b.car.length; i++) { key += b.car.charCodeAt(i); }
+        }
+        return CAR_PALETTE[Math.abs(key) % CAR_PALETTE.length];
+    }
+    function carTint(hex, a) {
+        var n = parseInt(hex.slice(1), 16);
+        return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+    }
     function todayStr() {
         var t = new Date();
         return t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate());
@@ -151,7 +168,10 @@
 
                 var chips = '';
                 items.slice(0, 4).forEach(function (b) {
-                    chips += '<span class="carbooking-evt s-' + (b.status || 1) + (b.conflict ? ' is-conflict' : '') + '">'
+                    var col = carColor(b);
+                    chips += '<span class="carbooking-evt s-' + (b.status || 1) + (b.conflict ? ' is-conflict' : '') + '"'
+                        + ' style="border-left-color:' + col + ';background:' + carTint(col, 0.14) + ';"'
+                        + ' title="' + esc(b.car) + '">'
                         + '<b>' + esc(timeOf(b.departure)) + '</b> '
                         + esc(b.car) + ' — ' + esc(b.user)
                         + '</span>';
@@ -264,7 +284,8 @@
                 var open = bform
                     ? '<a class="carbooking-open" href="' + bform + '?id=' + b.id + '"><i class="ti ti-external-link"></i> Abrir</a>'
                     : '';
-                return '<div class="carbooking-day-item s-' + (b.status || 1) + (b.conflict ? ' is-conflict' : '') + '">'
+                return '<div class="carbooking-day-item s-' + (b.status || 1) + (b.conflict ? ' is-conflict' : '') + '"'
+                    + ' style="border-left-color:' + carColor(b) + ';">'
                     + '<div class="carbooking-day-item__body">'
                     + '<div class="carbooking-day-item__top">'
                     + '<span class="carbooking-chip status-' + (b.conflict ? 'conflict' : statusName(b.status)) + '">'

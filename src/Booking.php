@@ -70,7 +70,7 @@ class Booking extends CommonDBTM
             self::STATUS_APPROVED  => __('Aprovado', 'carbooking'),
             self::STATUS_REJECTED  => __('Recusado', 'carbooking'),
             self::STATUS_CANCELLED => __('Cancelado', 'carbooking'),
-            self::STATUS_ARRIVED   => __('Chegado', 'carbooking'),
+            self::STATUS_ARRIVED   => __('Retorno', 'carbooking'),
         ];
     }
 
@@ -287,7 +287,7 @@ class Booking extends CommonDBTM
     /**
      * Marca que o carro voltou da viagem (chegada confirmada pelo aprovador).
      */
-    public function markReturned(?string $sheet = null): bool
+    public function markReturned(?string $sheet = null, ?string $when = null): bool
     {
         if (!self::canApprove()) {
             Session::addMessageAfterRedirect(__('Você não tem permissão para confirmar a chegada.', 'carbooking'), false, ERROR);
@@ -297,9 +297,16 @@ class Booking extends CommonDBTM
             Session::addMessageAfterRedirect(__('Só agendamentos aprovados podem ser marcados como chegada.', 'carbooking'), false, ERROR);
             return false;
         }
+        $returned = $_SESSION['glpi_currenttime'] ?? date('Y-m-d H:i:s');
+        if ($when !== null && $when !== '') {
+            $ts = strtotime($when);
+            if ($ts !== false) {
+                $returned = date('Y-m-d H:i:s', $ts);
+            }
+        }
         $update = [
             'id'            => $this->fields['id'],
-            'date_returned' => $_SESSION['glpi_currenttime'] ?? date('Y-m-d H:i:s'),
+            'date_returned' => $returned,
             'status'        => self::STATUS_ARRIVED,
         ];
         if ($sheet !== null && $sheet !== '') {
@@ -903,6 +910,7 @@ class Booking extends CommonDBTM
                 'id'           => (int) $row['id'],
                 'date'         => substr($dep, 0, 10),
                 'car'          => $row['car'] ?: __('Sem carro', 'carbooking'),
+                'car_id'       => (int) $row['car_id'],
                 'user'         => $name,
                 'sector'       => $row['sector'] ?: __('Sem setor', 'carbooking'),
                 'departure'    => $dep,
