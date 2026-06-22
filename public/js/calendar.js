@@ -256,15 +256,10 @@
                     : '';
                 var uploadSheetBtn = '';
                 if (!b.has_sheet && (b.status === 5 || b.returned_at)) {
-                    uploadSheetBtn = '<label class="carbooking-btn-sheet" title="Adicionar folha de agendamento">'
-                        + '<i class="ti ti-paperclip"></i> Folha'
-                        + '<form method="post" action="' + bform + '" enctype="multipart/form-data" style="display:none;">'
-                        + '<input type="hidden" name="id" value="' + b.id + '">'
-                        + '<input type="hidden" name="upload_sheet" value="1">'
-                        + '<input type="hidden" name="_glpi_csrf_token" value="' + esc(csrf) + '">'
-                        + '<input type="file" name="arrival_sheet" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.odt,.ods"'
-                        + ' onchange="this.closest(\'form\').submit();">'
-                        + '</form></label>';
+                    uploadSheetBtn = '<button type="button" class="carbooking-btn-sheet" data-cb-attach'
+                        + ' data-id="' + b.id + '" data-bform="' + bform + '" data-csrf="' + esc(csrf) + '"'
+                        + ' title="Adicionar folha de agendamento">'
+                        + '<i class="ti ti-paperclip"></i> Folha</button>';
                 }
                 var open = bform
                     ? '<a class="carbooking-open" href="' + bform + '?id=' + b.id + '"><i class="ti ti-external-link"></i> Abrir</a>'

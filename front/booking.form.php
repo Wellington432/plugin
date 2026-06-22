@@ -69,8 +69,12 @@ if (isset($_POST['add'])) {
 
 } elseif (isset($_POST['arrive'])) {
     // Confirmação de chegada do carro (somente aprovador). A folha de
-    // agendamento é opcional.
+    // agendamento é opcional, mas o checkbox de confirmação é obrigatório.
     Session::checkRight(Booking::$rightname, Booking::APPROVE);
+    if (empty($_POST['confirm_ok'])) {
+        Session::addMessageAfterRedirect(__('Você precisa marcar a confirmação para registrar a chegada.', 'carbooking'), false, ERROR);
+        Html::back();
+    }
     if ($booking->getFromDB((int) $_POST['id'])) {
         $sheet = null;
         if (!empty($_FILES['arrival_sheet']['name'])) {
@@ -83,6 +87,10 @@ if (isset($_POST['add'])) {
 } elseif (isset($_POST['upload_sheet'])) {
     // Adiciona folha a um agendamento já marcado como chegada (sem folha ainda).
     Session::checkRight(Booking::$rightname, Booking::APPROVE);
+    if (empty($_POST['confirm_ok'])) {
+        Session::addMessageAfterRedirect(__('Você precisa marcar a confirmação para enviar a folha.', 'carbooking'), false, ERROR);
+        Html::back();
+    }
     if ($booking->getFromDB((int) $_POST['id'])) {
         if (!empty($_FILES['arrival_sheet']['name'])) {
             $sheet = Booking::storeArrivalSheet((int) $_POST['id'], $_FILES['arrival_sheet']);

@@ -4,30 +4,14 @@
 {% set readonly = not can_edit and not is_new %}
 
 {# ========================= #}
-{# BOTÃO CADASTRAR CARRO     #}
+{# TOPO — voltar para a frota #}
 {# ========================= #}
 <div class="carbooking-header-actions" style="margin-bottom: 15px;">
 
     <a class="carbooking-back" href="{{ web_dir }}/front/car.php"><i class="ti ti-arrow-left"></i> {{ __('Voltar para a Frota', 'carbooking') }}</a>
 
     {% if can_edit %}
-
-        <a href="{{ web_dir }}/front/car.form.php"
-           class="btn btn-primary">
-            <i class="ti ti-plus"></i>
-            {{ __('Cadastrar carro', 'carbooking') }}
-        </a>
-
-    {% else %}
-
-        <button class="btn btn-secondary"
-                disabled
-                title="{{ __('Você não tem permissão para cadastrar carros', 'carbooking') }}">
-
-            <i class="ti ti-lock"></i>
-            {{ __('Cadastrar carro', 'carbooking') }}
-        </button>
-
+        <label for="car-picture" class="carbooking-addimg"><i class="ti ti-photo-plus"></i> {{ __('Adicionar Imagem', 'carbooking') }}</label>
     {% endif %}
 
 </div>
@@ -86,10 +70,13 @@
                 <label class="form-label">{{ __('Foto do carro', 'carbooking') }}</label>
 
                 <input type="file"
+                       id="car-picture"
                        name="picture"
                        accept="image/*"
-                       class="form-control"
-                       {% if readonly %}disabled{% endif %}>
+                       class="carbooking-imgfile"
+                       {% if readonly %}disabled{% endif %}
+                       hidden>
+                <div class="carbooking-imgname text-muted">{{ __('Use o botão "Adicionar Imagem" acima.', 'carbooking') }}</div>
 
                 <small class="text-muted">{{ __('JPG, PNG, WEBP ou GIF.', 'carbooking') }}</small>
             </div>
@@ -180,7 +167,7 @@
 
                 {% if is_new %}
                     <button type="submit" name="add" value="1" class="btn btn-primary">
-                        <i class="ti ti-plus"></i> {{ _x('button', 'Add') }}
+                        <i class="ti ti-plus"></i> {{ __('Cadastrar carro', 'carbooking') }}
                     </button>
 
                 {% else %}

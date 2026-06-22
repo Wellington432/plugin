@@ -53,7 +53,26 @@
         bd.addEventListener('click', close);
     });
 
-    /* Marcar chegada com anexo opcional (folha de agendamento). */
+    /* Prévia da imagem ao cadastrar/editar carro. */
+    document.addEventListener('change', function (e) {
+        var inp = e.target;
+        if (!inp.classList || !inp.classList.contains('carbooking-imgfile')) { return; }
+        var f = inp.files && inp.files[0];
+        var nameBox = document.querySelector('.carbooking-imgname');
+        var preview = document.querySelector('.carbooking-photo-preview');
+        if (nameBox) { nameBox.textContent = f ? f.name : ''; }
+        if (f && preview && /^image\//.test(f.type)) {
+            var url = URL.createObjectURL(f);
+            preview.innerHTML = '';
+            var img = document.createElement('img');
+            img.alt = f.name;
+            img.onload = function () { URL.revokeObjectURL(url); };
+            img.src = url;
+            preview.appendChild(img);
+        }
+    });
+
+    /* Marcar chegada com anexo opcional (folha) + confirmação obrigatória. */
     document.addEventListener('click', function (e) {
         var btn = e.target.closest && e.target.closest('[data-cb-arrive]');
         if (!btn) { return; }
@@ -76,14 +95,93 @@
           + '<input type="hidden" name="_glpi_csrf_token" value="' + csrf + '">'
           + '<input type="hidden" name="_redirect_anchor" value="carbooking-arrived-section">'
           + '<label class="form-label"><b>Folha de agendamento</b> (opcional)</label>'
-          + '<input type="file" name="arrival_sheet" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.odt,.ods">'
-          + '<button type="submit" class="carbooking-submit" style="margin-top:0.8rem;"><i class="ti ti-flag-check"></i> Confirmar chegada</button>'
+          + '<input type="file" name="arrival_sheet" class="form-control cb-file" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.odt,.ods">'
+          + '<div class="carbooking-filepreview" hidden></div>'
+          + '<label class="carbooking-check"><input type="checkbox" class="cb-confirm" name="confirm_ok" value="1"> Confirmo que as informações enviadas estão corretas.</label>'
+          + '<button type="submit" class="carbooking-submit cb-go" style="margin-top:0.8rem;" disabled><i class="ti ti-flag-check"></i> Confirmar chegada</button>'
           + '</form></div></div>';
         document.body.appendChild(overlay);
         document.body.classList.add('carbooking-modal-open');
+        wireFileConfirm(overlay, false);
         function close() { overlay.remove(); document.body.classList.remove('carbooking-modal-open'); }
         overlay.querySelectorAll('[data-x]').forEach(function (el) { el.addEventListener('click', close); });
     });
+
+    /* Adicionar folha pelo calendário: prévia do arquivo + confirmação obrigatória. */
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('[data-cb-attach]');
+        if (!btn) { return; }
+        e.preventDefault();
+        var id = btn.getAttribute('data-id');
+        var bform = btn.getAttribute('data-bform');
+        var csrf = btn.getAttribute('data-csrf') || '';
+        var overlay = document.createElement('div');
+        overlay.className = 'carbooking-modal';
+        overlay.innerHTML =
+            '<div class="carbooking-modal__backdrop" data-x></div>'
+          + '<div class="carbooking-modal__dialog" style="max-width:460px;">'
+          + '<div class="carbooking-modal__head"><h3>Adicionar folha de agendamento</h3>'
+          + '<button type="button" class="carbooking-modal__close" data-x><i class="ti ti-x"></i></button></div>'
+          + '<div class="carbooking-modal__body">'
+          + '<form method="post" action="' + bform + '" enctype="multipart/form-data">'
+          + '<input type="hidden" name="id" value="' + id + '">'
+          + '<input type="hidden" name="upload_sheet" value="1">'
+          + '<input type="hidden" name="_glpi_csrf_token" value="' + csrf + '">'
+          + '<label class="form-label"><b>Arquivo da folha</b></label>'
+          + '<input type="file" name="arrival_sheet" class="form-control cb-file" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.odt,.ods">'
+          + '<div class="carbooking-filepreview" hidden></div>'
+          + '<label class="carbooking-check"><input type="checkbox" class="cb-confirm" name="confirm_ok" value="1"> Confirmo que as informações enviadas estão corretas.</label>'
+          + '<button type="submit" class="carbooking-submit cb-go" style="margin-top:0.8rem;" disabled><i class="ti ti-upload"></i> Enviar folha</button>'
+          + '</form></div></div>';
+        document.body.appendChild(overlay);
+        document.body.classList.add('carbooking-modal-open');
+        wireFileConfirm(overlay, true);
+        function close() { overlay.remove(); document.body.classList.remove('carbooking-modal-open'); }
+        overlay.querySelectorAll('[data-x]').forEach(function (el) { el.addEventListener('click', close); });
+    });
+
+    /* Liga prévia do arquivo + checkbox obrigatório ao botão de envio.
+       requireFile = true exige também que um arquivo seja escolhido. */
+    function wireFileConfirm(overlay, requireFile) {
+        var file = overlay.querySelector('.cb-file');
+        var prev = overlay.querySelector('.carbooking-filepreview');
+        var chk = overlay.querySelector('.cb-confirm');
+        var go = overlay.querySelector('.cb-go');
+        function refresh() {
+            var hasFile = file && file.files && file.files.length > 0;
+            go.disabled = !(chk.checked && (!requireFile || hasFile));
+        }
+        function fmtSize(n) {
+            if (n < 1024) { return n + ' B'; }
+            if (n < 1048576) { return (n / 1024).toFixed(1) + ' KB'; }
+            return (n / 1048576).toFixed(1) + ' MB';
+        }
+        if (file) {
+            file.addEventListener('change', function () {
+                prev.innerHTML = '';
+                prev.hidden = true;
+                if (file.files && file.files[0]) {
+                    var f = file.files[0];
+                    if (/^image\//.test(f.type)) {
+                        var img = document.createElement('img');
+                        img.alt = f.name;
+                        img.onload = function () { URL.revokeObjectURL(img.src); };
+                        img.src = URL.createObjectURL(f);
+                        prev.appendChild(img);
+                    }
+                    var info = document.createElement('div');
+                    info.className = 'carbooking-fileinfo';
+                    info.innerHTML = '<i class="ti ti-file-description"></i> <b>' + (f.name || '—') + '</b>'
+                        + '<br><span>' + (f.type || 'tipo desconhecido') + ' · ' + fmtSize(f.size || 0) + '</span>';
+                    prev.appendChild(info);
+                    prev.hidden = false;
+                }
+                refresh();
+            });
+        }
+        if (chk) { chk.addEventListener('change', refresh); }
+        refresh();
+    }
 
     /* Filtros das tabelas da Análise (data, hora a partir de, status). */
     (function tableFilters() {

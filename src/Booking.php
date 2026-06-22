@@ -1233,14 +1233,7 @@ class Booking extends CommonDBTM
             'page'  => $web . '/front/calendar.php',
         ];
 
-        // Histórico — visível para todos (usuário vê os próprios; gestor vê tudo).
-        $menu['options']['history'] = [
-            'title' => __('Histórico', 'carbooking'),
-            'icon'  => 'ti ti-history',
-            'page'  => $web . '/front/history.php',
-        ];
-
-        // Lista de agendamentos (quem tem leitura).
+        // Agendamentos — logo abaixo do Calendário.
         if (self::canView()) {
             $menu['options']['booking'] = [
                 'title' => self::getTypeName(2),
@@ -1274,6 +1267,13 @@ class Booking extends CommonDBTM
                 'page'  => $web . '/front/analytics.php',
             ];
         }
+
+        // Histórico — visível para todos (usuário vê os próprios; gestor vê tudo).
+        $menu['options']['history'] = [
+            'title' => __('Histórico', 'carbooking'),
+            'icon'  => 'ti ti-history',
+            'page'  => $web . '/front/history.php',
+        ];
 
         return $menu;
     }
