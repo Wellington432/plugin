@@ -26,11 +26,13 @@ if ($sheet === '' || !is_file($path)) {
 
 $type = function_exists('mime_content_type') ? (mime_content_type($path) ?: 'application/octet-stream') : 'application/octet-stream';
 
+$disposition = !empty($_GET['inline']) ? 'inline' : 'attachment';
+
 while (ob_get_level() > 0) {
     ob_end_clean();
 }
 header('Content-Type: ' . $type);
-header('Content-Disposition: attachment; filename="folha_agendamento_' . $id . '.' . pathinfo($path, PATHINFO_EXTENSION) . '"');
+header('Content-Disposition: ' . $disposition . '; filename="folha_agendamento_' . $id . '.' . pathinfo($path, PATHINFO_EXTENSION) . '"');
 header('Content-Length: ' . filesize($path));
 header('Cache-Control: no-cache, must-revalidate');
 readfile($path);

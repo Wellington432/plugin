@@ -77,6 +77,19 @@
         {% if can_approve and status in [2, 5] %}
         <div class="carbooking-sheetbox">
             <label class="form-label">{{ __('Folha de agendamento', 'carbooking') }}</label>
+            {% if item.fields['arrival_sheet'] %}
+                {% set sheet_ext = item.fields['arrival_sheet']|split('.')|last|lower %}
+                {% set sheet_src = web_dir ~ '/front/sheet.php?id=' ~ item.fields['id'] ~ '&inline=1' %}
+                <div class="carbooking-sheet-preview">
+                    {% if sheet_ext in ['png', 'jpg', 'jpeg', 'gif', 'webp'] %}
+                        <a href="{{ sheet_src }}" target="_blank" rel="noopener"><img src="{{ sheet_src }}" alt="{{ __('Folha anexada', 'carbooking') }}"></a>
+                    {% elseif sheet_ext == 'pdf' %}
+                        <iframe src="{{ sheet_src }}" title="{{ __('Folha anexada', 'carbooking') }}"></iframe>
+                    {% else %}
+                        <div class="carbooking-sheet-file"><i class="ti ti-file-text"></i> {{ __('Arquivo', 'carbooking') }}: {{ sheet_ext|upper }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
             <div class="carbooking-sheetbox__row">
                 {% if item.fields['arrival_sheet'] %}
                     <span class="carbooking-sheet-ok"><i class="ti ti-paperclip"></i> {{ __('Folha anexada', 'carbooking') }}</span>
