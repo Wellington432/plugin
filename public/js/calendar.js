@@ -279,17 +279,19 @@
                         + ' title="Adicionar folha de agendamento">'
                         + '<i class="ti ti-paperclip"></i> Folha</button>';
                 }
-                var open = bform
-                    ? '<a class="carbooking-open" href="' + bform + '?id=' + b.id + '"><i class="ti ti-external-link"></i> Abrir</a>'
-                    : '';
                 var sheetBtn = (b.has_sheet && bform)
                     ? '<a class="carbooking-open" href="' + bform.replace('booking.form.php', 'sheet.php') + '?id=' + b.id + '"><i class="ti ti-download"></i> Baixar folha</a>'
                     : '';
-                return '<div class="carbooking-day-item s-' + (b.status || 1) + (b.conflict ? ' is-conflict' : '') + '">'
+                var openUrl = bform ? (bform + '?id=' + b.id) : '';
+                var hasObs = (b.status === 5 && b.obs);
+                return '<div class="carbooking-day-item s-' + (b.status || 1) + (b.conflict ? ' is-conflict' : '') + (hasObs ? ' has-obs' : '') + '"'
+                    + (openUrl ? ' data-open="' + openUrl + '" style="cursor:pointer;"' : '')
+                    + '>'
                     + '<div class="carbooking-day-item__body">'
                     + '<div class="carbooking-day-item__top">'
                     + '<span class="carbooking-chip status-' + (b.conflict ? 'conflict' : statusName(b.status)) + '">'
                     + (b.conflict ? 'Conflito' : esc(b.status_label)) + '</span>'
+                    + (hasObs ? '<span class="carbooking-obsdot" title="Tem observação"></span> ' : '')
                     + '<strong>' + esc(b.car) + '</strong></div>'
                     + '<div class="carbooking-day-item__meta"><i class="ti ti-user"></i> ' + esc(b.user)
                     + ' &nbsp;·&nbsp; <i class="ti ti-building"></i> ' + esc(b.sector) + '</div>'
@@ -297,8 +299,9 @@
                     + (b.destination ? ' &nbsp;·&nbsp; <i class="ti ti-map-pin"></i> ' + esc(b.destination) : '')
                     + '</div>'
                     + (b.status === 4 && b.note ? '<div class="carbooking-day-item__reason"><i class="ti ti-info-circle"></i> Motivo: ' + esc(b.note) + '</div>' : '')
+                    + (hasObs ? '<div class="carbooking-day-item__reason obs"><i class="ti ti-message-circle"></i> Observação: ' + esc(b.obs) + '</div>' : '')
                     + '</div>'
-                    + '<div class="carbooking-day-item__actions">' + open + sheetBtn + cancelBtn + uploadSheetBtn + '</div>'
+                    + '<div class="carbooking-day-item__actions">' + sheetBtn + cancelBtn + uploadSheetBtn + '</div>'
                     + '</div>';
             }).join('');
 
@@ -308,6 +311,14 @@
                     + '</div>' + listHtml;
             }
             modalExisting.innerHTML = listHtml;
+
+            // Clicar no card abre o agendamento (exceto cliques em botões/links).
+            modalExisting.querySelectorAll('.carbooking-day-item[data-open]').forEach(function (card) {
+                card.addEventListener('click', function (e) {
+                    if (e.target.closest('a, button')) { return; }
+                    window.location.href = card.getAttribute('data-open');
+                });
+            });
 
             // Pré-preenche o dia no formulário do popup (data e hora separadas).
             if (modalDate) { modalDate.value = dateStr; }

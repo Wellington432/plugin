@@ -135,11 +135,11 @@
                             {% if readonly %}disabled{% endif %}>
 
                         <option value="1" {{ item.fields['is_active'] ? 'selected' : '' }}>
-                            {{ __('Sim', 'carbooking') }}
+                            {{ __('Disponível', 'carbooking') }}
                         </option>
 
                         <option value="0" {{ not item.fields['is_active'] ? 'selected' : '' }}>
-                            {{ __('Não', 'carbooking') }}
+                            {{ __('Indisponível', 'carbooking') }}
                         </option>
 
                     </select>

@@ -60,6 +60,7 @@ function plugin_carbooking_install()
             `date_validation`            datetime     DEFAULT NULL,
             `date_returned`              datetime     DEFAULT NULL,
             `arrival_sheet`              varchar(255) DEFAULT NULL,
+            `arrival_obs`                text         DEFAULT NULL,
             `comment_validation`         text         DEFAULT NULL,
             `is_deleted`                 tinyint      NOT NULL DEFAULT 0,
             `date_creation`              timestamp    NULL DEFAULT NULL,
@@ -93,6 +94,11 @@ function plugin_carbooking_install()
     if ($DB->tableExists($bookings) && !$DB->fieldExists($bookings, 'arrival_sheet')) {
         $DB->doQuery("ALTER TABLE `$bookings`
             ADD COLUMN `arrival_sheet` varchar(255) DEFAULT NULL AFTER `date_returned`");
+    }
+
+    if ($DB->tableExists($bookings) && !$DB->fieldExists($bookings, 'arrival_obs')) {
+        $DB->doQuery("ALTER TABLE `$bookings`
+            ADD COLUMN `arrival_obs` text DEFAULT NULL AFTER `arrival_sheet`");
     }
 
     $migration->executeMigration();

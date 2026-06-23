@@ -16,7 +16,7 @@
 
         <div class="carbooking-blist-actions">
             {% if b.status == 1 and can_approve %}
-                <form method="post" action="{{ web_dir }}/front/booking.form.php"{% if b.conflict %} onsubmit="return confirm('{{ __('ATENÇÃO: já existe outro agendamento para este carro neste mesmo horário. Deseja aprovar mesmo assim?', 'carbooking') }}');"{% endif %}>
+                <form method="post" action="{{ web_dir }}/front/booking.form.php"{% if b.conflict %} data-cb-confirm="{{ __('Já existe outro agendamento para este carro neste mesmo horário. Deseja aprovar mesmo assim?', 'carbooking') }}" data-cb-confirm-title="{{ __('Conflito de horário', 'carbooking') }}"{% endif %}>
                     <input type="hidden" name="id" value="{{ b.id }}">
                     <input type="hidden" name="approve" value="1">
                     <input type="hidden" name="_glpi_csrf_token" value="{{ csrf }}">

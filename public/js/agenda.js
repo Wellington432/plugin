@@ -53,6 +53,50 @@
         bd.addEventListener('click', close);
     });
 
+    /* Confirmação estilizada para formulários (ex.: aprovar com conflito). */
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (!form || !form.getAttribute || !form.getAttribute('data-cb-confirm')) { return; }
+        if (form.dataset.cbConfirmed === '1') { return; }
+        e.preventDefault();
+        var msg = form.getAttribute('data-cb-confirm');
+        var title = form.getAttribute('data-cb-confirm-title') || 'Confirmação';
+        var overlay = document.createElement('div');
+        overlay.className = 'carbooking-modal';
+        overlay.innerHTML =
+            '<div class="carbooking-modal__backdrop" data-x></div>'
+          + '<div class="carbooking-modal__dialog" style="max-width:440px;">'
+          + '<div class="carbooking-modal__head"><h3><i class="ti ti-alert-triangle" style="color:#f97316;"></i> ' + title + '</h3>'
+          + '<button type="button" class="carbooking-modal__close" data-x><i class="ti ti-x"></i></button></div>'
+          + '<div class="carbooking-modal__body">'
+          + '<p>' + msg + '</p>'
+          + '<div class="carbooking-confirm-actions">'
+          + '<button type="button" class="carbooking-back" data-x>Cancelar</button>'
+          + '<button type="button" class="carbooking-submit cb-yes" style="margin:0;background:#2f9e44;"><i class="ti ti-check"></i> Confirmar aprovação</button>'
+          + '</div></div></div>';
+        document.body.appendChild(overlay);
+        document.body.classList.add('carbooking-modal-open');
+        function close() { overlay.remove(); document.body.classList.remove('carbooking-modal-open'); }
+        overlay.querySelectorAll('[data-x]').forEach(function (el) { el.addEventListener('click', close); });
+        overlay.querySelector('.cb-yes').addEventListener('click', function () {
+            form.dataset.cbConfirmed = '1';
+            close();
+            if (form.requestSubmit) { form.requestSubmit(); } else { form.submit(); }
+        });
+    });
+
+    /* Linhas expansíveis (ex.: Retornos com observação). */
+    document.addEventListener('click', function (e) {
+        var row = e.target.closest && e.target.closest('tr[data-rowtoggle]');
+        if (!row) { return; }
+        if (e.target.closest('a, button')) { return; }
+        var child = row.nextElementSibling;
+        if (child && child.classList.contains('carbooking-arow-child')) {
+            child.hidden = !child.hidden;
+            row.classList.toggle('is-open', !child.hidden);
+        }
+    });
+
     /* Prévia da imagem ao cadastrar/editar carro. */
     document.addEventListener('change', function (e) {
         var inp = e.target;
@@ -103,6 +147,8 @@
           + '<label class="form-label" style="margin-top:0.7rem;"><b>Folha de agendamento</b> (opcional)</label>'
           + '<input type="file" name="arrival_sheet" class="form-control cb-file" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.doc,.docx,.xls,.xlsx,.odt,.ods">'
           + '<div class="carbooking-filepreview" hidden></div>'
+          + '<label class="form-label" style="margin-top:0.7rem;"><b>Observação</b> (opcional)</label>'
+          + '<textarea name="arrival_obs" class="form-control" rows="2" placeholder="Se preenchida, vira a observação do carro."></textarea>'
           + '<label class="carbooking-check"><input type="checkbox" class="cb-confirm" name="confirm_ok" value="1"> Confirmo que as informações enviadas estão corretas.</label>'
           + '<button type="submit" class="carbooking-submit cb-go" style="margin-top:0.8rem;" disabled><i class="ti ti-flag-check"></i> Confirmar retorno</button>'
           + '</form></div></div>';

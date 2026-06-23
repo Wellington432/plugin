@@ -30,7 +30,7 @@
         <div class="row">
             <div class="col-12 col-md-6 mb-3">
                 <label class="form-label" for="bk-car">{{ __('Carro', 'carbooking') }}</label>
-                <select class="form-select" id="bk-car" name="plugin_carbooking_cars_id" required {{ editable ? '' : 'disabled' }}>
+                <select class="form-select" id="bk-car" name="plugin_carbooking_cars_id" required {{ is_new ? '' : 'disabled' }} title="{{ is_new ? '' : __('O carro não pode ser alterado.', 'carbooking') }}">
                     <option value="">{{ __('Selecione…', 'carbooking') }}</option>
                     {% for id, car in cars %}
                         <option value="{{ id }}" {{ item.fields['plugin_carbooking_cars_id'] == id ? 'selected' : '' }}>

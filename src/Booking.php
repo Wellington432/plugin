@@ -287,7 +287,7 @@ class Booking extends CommonDBTM
     /**
      * Marca que o carro voltou da viagem (chegada confirmada pelo aprovador).
      */
-    public function markReturned(?string $sheet = null, ?string $when = null): bool
+    public function markReturned(?string $sheet = null, ?string $when = null, ?string $obs = null): bool
     {
         if (!self::canApprove()) {
             Session::addMessageAfterRedirect(__('Você não tem permissão para confirmar a chegada.', 'carbooking'), false, ERROR);
@@ -312,7 +312,22 @@ class Booking extends CommonDBTM
         if ($sheet !== null && $sheet !== '') {
             $update['arrival_sheet'] = $sheet;
         }
-        return $this->update($update);
+        if ($obs !== null) {
+            $update['arrival_obs'] = $obs;
+        }
+        $ok = $this->update($update);
+
+        // Se houver observação, ela passa a ser a observação (comentário) do carro.
+        if ($ok && $obs !== null && trim($obs) !== '') {
+            $carId = (int) ($this->fields['plugin_carbooking_cars_id'] ?? 0);
+            if ($carId > 0) {
+                $car = new Car();
+                if ($car->getFromDB($carId)) {
+                    $car->update(['id' => $carId, 'comment' => $obs]);
+                }
+            }
+        }
+        return $ok;
     }
 
     /**
@@ -659,7 +674,7 @@ class Booking extends CommonDBTM
                 'b.id', 'b.date_departure', 'b.date_arrival', 'b.destination',
                 'b.reason', 'b.status', 'b.users_id', 'b.date_returned',
                 'b.comment_validation', 'b.date_validation',
-                'b.arrival_sheet',
+                'b.arrival_sheet', 'b.arrival_obs',
                 'b.plugin_carbooking_cars_id AS car_id',
                 'c.name AS car',
                 'u.name AS user_login', 'u.realname AS realname', 'u.firstname AS firstname',
@@ -733,6 +748,7 @@ class Booking extends CommonDBTM
                 'cancelled_at' => $row['date_validation'],
                 'returned_at'  => $row['date_returned'],
                 'has_sheet'    => !empty($row['arrival_sheet']),
+                'obs'          => $row['arrival_obs'] ?: '',
                 'conflict'     => !empty($conflicts[(int) $row['id']]),
                 'status'       => $st,
                 'status_label' => self::getStatusName($st),
@@ -860,7 +876,7 @@ class Booking extends CommonDBTM
                 'b.id', 'b.date_departure', 'b.date_arrival', 'b.destination',
                 'b.reason', 'b.status', 'b.date_returned', 'b.users_id',
                 'b.comment_validation', 'b.date_validation',
-                'b.arrival_sheet',
+                'b.arrival_sheet', 'b.arrival_obs',
                 'b.plugin_carbooking_cars_id AS car_id',
                 'c.name AS car',
                 'u.name AS user_login', 'u.realname AS realname', 'u.firstname AS firstname',
@@ -875,7 +891,7 @@ class Booking extends CommonDBTM
                 'glpi_groups AS g'        => ['ON' => ['b' => 'groups_id', 'g' => 'id']],
             ],
             'WHERE' => $where,
-            'ORDER' => 'b.date_departure ASC',
+            'ORDER' => 'b.date_departure DESC',
         ]);
 
         $uid = (int) Session::getLoginUserID();
@@ -920,6 +936,7 @@ class Booking extends CommonDBTM
                 'note'         => $row['comment_validation'] ?: '',
                 'returned_at'  => $row['date_returned'],
                 'has_sheet'    => !empty($row['arrival_sheet']),
+                'obs'          => $row['arrival_obs'] ?: '',
                 'cancelled_by' => $apName,
                 'cancelled_at' => $row['date_validation'],
                 'conflict'     => !empty($conflicts[(int) $row['id']]),
@@ -980,7 +997,7 @@ class Booking extends CommonDBTM
             'SELECT' => [
                 'b.id', 'b.date_departure', 'b.date_arrival', 'b.status',
                 'b.date_returned', 'b.date_validation', 'b.comment_validation',
-                'b.arrival_sheet',
+                'b.arrival_sheet', 'b.arrival_obs',
                 'c.name AS car',
                 'u.name AS user_login', 'u.realname AS realname', 'u.firstname AS firstname',
                 'au.name AS ap_login', 'au.realname AS ap_realname', 'au.firstname AS ap_firstname',
@@ -1022,6 +1039,7 @@ class Booking extends CommonDBTM
                 'status_label' => self::getStatusName($st),
                 'returned_at'  => $row['date_returned'],
                 'has_sheet'    => !empty($row['arrival_sheet']),
+                'obs'          => $row['arrival_obs'] ?: '',
                 'acted_by'     => $apName,
                 'acted_at'     => $row['date_validation'],
                 'note'         => $row['comment_validation'] ?: '',

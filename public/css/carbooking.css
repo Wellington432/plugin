@@ -1225,3 +1225,25 @@ body.carbooking-modal-open { overflow: hidden; }
 .carbooking-chip.status-rejected  { background: rgba(224,49,49,0.15);  color: #c92a2a; }
 .carbooking-chip.status-cancelled { background: rgba(224,49,49,0.15);  color: #c92a2a; }
 .carbooking-chip.status-conflict  { background: rgba(249,115,22,0.16); color: #c2410c; }
+
+/* ---------- v1.0.76: observação no retorno + linhas expansíveis + confirm ---------- */
+.carbooking-obsdot {
+    display: inline-block; width: 0.7rem; height: 0.7rem; border-radius: 50%;
+    background: #f97316; vertical-align: middle; box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+}
+.carbooking-obstag {
+    font-size: 0.7rem; font-weight: 700; color: #c2410c; text-transform: uppercase;
+    letter-spacing: 0.3px; margin-right: 0.2rem;
+}
+.carbooking-arow.has-obs > td { background: rgba(249,115,22,0.10); }
+.carbooking-arow.cb-rowtoggle { cursor: pointer; }
+.carbooking-arow.cb-rowtoggle:hover > td { background: rgba(249,115,22,0.16); }
+.carbooking-arow.is-open > td { background: rgba(249,115,22,0.16); }
+.carbooking-arow-child > td {
+    background: #fff7ed; color: #9a3412; font-size: 0.86rem; padding: 0.6rem 0.9rem;
+    border-left: 3px solid #f97316;
+}
+.carbooking-day-item.has-obs { box-shadow: inset 0 0 0 1px rgba(249,115,22,0.4); }
+.carbooking-day-item__reason.obs { color: #c2410c; }
+.carbooking-confirm-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1rem; }
+.carbooking-confirm-actions .carbooking-back { margin: 0; }
