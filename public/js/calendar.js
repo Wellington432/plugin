@@ -284,6 +284,9 @@
                 var open = bform
                     ? '<a class="carbooking-open" href="' + bform + '?id=' + b.id + '"><i class="ti ti-external-link"></i> Abrir</a>'
                     : '';
+                var sheetBtn = (b.has_sheet && bform)
+                    ? '<a class="carbooking-open" href="' + bform.replace('booking.form.php', 'sheet.php') + '?id=' + b.id + '"><i class="ti ti-download"></i> Baixar folha</a>'
+                    : '';
                 return '<div class="carbooking-day-item s-' + (b.status || 1) + (b.conflict ? ' is-conflict' : '') + '"'
                     + ' style="border-left-color:' + carColor(b) + ';">'
                     + '<div class="carbooking-day-item__body">'
@@ -298,7 +301,7 @@
                     + '</div>'
                     + (b.status === 4 && b.note ? '<div class="carbooking-day-item__reason"><i class="ti ti-info-circle"></i> Motivo: ' + esc(b.note) + '</div>' : '')
                     + '</div>'
-                    + '<div class="carbooking-day-item__actions">' + open + cancelBtn + uploadSheetBtn + '</div>'
+                    + '<div class="carbooking-day-item__actions">' + open + sheetBtn + cancelBtn + uploadSheetBtn + '</div>'
                     + '</div>';
             }).join('');
 
