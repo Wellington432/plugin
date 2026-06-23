@@ -1190,3 +1190,38 @@ body.carbooking-modal-open { overflow: hidden; }
     padding: 0.6rem 0.8rem; border: 1px dashed var(--cb-border); border-radius: 10px;
     color: var(--cb-muted); font-size: 0.85rem;
 }
+
+/* ---------- v1.0.75: cores por status (paleta definitiva) ----------
+   Amarelo = Pendente · Azul = Aprovado · Verde = Retorno
+   Laranja = Em conflito · Vermelho = Cancelado/Recusado            */
+
+/* Legenda */
+.carbooking-dot.dot-pending   { background: #f59f00; }
+.carbooking-dot.dot-approved  { background: #4263eb; }
+.carbooking-dot.dot-arrived   { background: #2f9e44; }
+.carbooking-dot.dot-conflict  { background: #f97316; }
+.carbooking-dot.dot-cancelled { background: #e03131; }
+
+/* Chips do calendário (eventos) */
+.carbooking-evt.s-1 { border-left-color: #f59f00 !important; background: rgba(245,159,0,0.16) !important; color: inherit !important; text-decoration: none !important; opacity: 1 !important; }
+.carbooking-evt.s-2 { border-left-color: #4263eb !important; background: rgba(66,99,235,0.12) !important; }
+.carbooking-evt.s-5 { border-left-color: #2f9e44 !important; background: rgba(47,158,68,0.14) !important; }
+.carbooking-evt.s-3 { border-left-color: #e03131 !important; background: rgba(224,49,49,0.10) !important; }
+.carbooking-evt.s-4 { border-left-color: #e03131 !important; background: rgba(224,49,49,0.12) !important; }
+.carbooking-evt.is-conflict { border-left-color: #f97316 !important; background: rgba(249,115,22,0.18) !important; color: #9a3412 !important; }
+
+/* Itens do popup do dia */
+.carbooking-day-item.s-1 { border-left-color: #f59f00 !important; }
+.carbooking-day-item.s-2 { border-left-color: #4263eb !important; }
+.carbooking-day-item.s-5 { border-left-color: #2f9e44 !important; }
+.carbooking-day-item.s-3 { border-left-color: #e03131 !important; }
+.carbooking-day-item.s-4 { border-left-color: #e03131 !important; }
+.carbooking-day-item.is-conflict { border-left-color: #f97316 !important; }
+
+/* Selos de status (texto) — usados no calendário e nas listas */
+.carbooking-chip.status-pending   { background: rgba(245,159,0,0.18);  color: #b8860b; }
+.carbooking-chip.status-approved  { background: rgba(66,99,235,0.15);  color: #3b5bdb; }
+.carbooking-chip.status-arrived   { background: rgba(47,158,68,0.16);  color: #2b8a3e; }
+.carbooking-chip.status-rejected  { background: rgba(224,49,49,0.15);  color: #c92a2a; }
+.carbooking-chip.status-cancelled { background: rgba(224,49,49,0.15);  color: #c92a2a; }
+.carbooking-chip.status-conflict  { background: rgba(249,115,22,0.16); color: #c2410c; }

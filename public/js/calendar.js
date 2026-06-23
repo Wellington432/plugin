@@ -168,9 +168,7 @@
 
                 var chips = '';
                 items.slice(0, 4).forEach(function (b) {
-                    var col = carColor(b);
                     chips += '<span class="carbooking-evt s-' + (b.status || 1) + (b.conflict ? ' is-conflict' : '') + '"'
-                        + ' style="border-left-color:' + col + ';background:' + carTint(col, 0.14) + ';"'
                         + ' title="' + esc(b.car) + '">'
                         + '<b>' + esc(timeOf(b.departure)) + '</b> '
                         + esc(b.car) + ' — ' + esc(b.user)
@@ -287,8 +285,7 @@
                 var sheetBtn = (b.has_sheet && bform)
                     ? '<a class="carbooking-open" href="' + bform.replace('booking.form.php', 'sheet.php') + '?id=' + b.id + '"><i class="ti ti-download"></i> Baixar folha</a>'
                     : '';
-                return '<div class="carbooking-day-item s-' + (b.status || 1) + (b.conflict ? ' is-conflict' : '') + '"'
-                    + ' style="border-left-color:' + carColor(b) + ';">'
+                return '<div class="carbooking-day-item s-' + (b.status || 1) + (b.conflict ? ' is-conflict' : '') + '">'
                     + '<div class="carbooking-day-item__body">'
                     + '<div class="carbooking-day-item__top">'
                     + '<span class="carbooking-chip status-' + (b.conflict ? 'conflict' : statusName(b.status)) + '">'
