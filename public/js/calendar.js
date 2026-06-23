@@ -312,11 +312,45 @@
             }
             modalExisting.innerHTML = listHtml;
 
-            // Clicar no card abre o agendamento (exceto cliques em botões/links).
-            modalExisting.querySelectorAll('.carbooking-day-item[data-open]').forEach(function (card) {
+            // Clicar no card preenche o formulário para edição.
+            modalExisting.querySelectorAll('.carbooking-day-item').forEach(function (card, idx) {
                 card.addEventListener('click', function (e) {
                     if (e.target.closest('a, button')) { return; }
-                    window.location.href = card.getAttribute('data-open');
+                    var b = items[idx];
+                    if (!b) { return; }
+                    
+                    // Muda para modo edição
+                    document.getElementById('cb-m-action-add').disabled = true;
+                    document.getElementById('cb-m-action-update').disabled = false;
+                    document.getElementById('cb-m-id').disabled = false;
+                    document.getElementById('cb-m-id').value = b.id;
+                    document.getElementById('cb-m-form-title').innerHTML = '<i class="ti ti-pencil"></i> Editar agendamento';
+                    document.getElementById('cb-m-submit').innerHTML = '<i class="ti ti-device-floppy"></i> Salvar alterações';
+                    
+                    // Preenche os campos
+                    if (carSel) {
+                        carSel.value = b.car_id;
+                        carSel.disabled = true; // Trava o carro
+                        updateCarImg();
+                    }
+                    var sectorSel = document.getElementById('cb-m-sector');
+                    if (sectorSel) { sectorSel.value = b.groups_id || 0; }
+                    
+                    if (mDate) { mDate.value = b.departure.substr(0, 10); }
+                    if (mTime) { mTime.value = b.departure.substr(11, 5); }
+                    
+                    if (mADate) { mADate.value = b.arrival ? b.arrival.substr(0, 10) : ''; }
+                    if (mATime) { mATime.value = b.arrival ? b.arrival.substr(11, 5) : ''; }
+                    
+                    var destInput = document.getElementById('cb-m-dest');
+                    if (destInput) { destInput.value = b.destination || ''; }
+                    
+                    var reasonInput = document.getElementById('cb-m-reason');
+                    if (reasonInput) { reasonInput.value = b.reason || ''; }
+                    
+                    // Remove destaque de outros cards e destaca este
+                    modalExisting.querySelectorAll('.carbooking-day-item').forEach(function(c){ c.classList.remove('is-editing'); });
+                    card.classList.add('is-editing');
                 });
             });
 
@@ -338,6 +372,21 @@
             if (!modal) { return; }
             modal.hidden = true;
             document.body.classList.remove('carbooking-modal-open');
+            
+            // Reseta o formulário para modo criação
+            document.getElementById('cb-m-action-add').disabled = false;
+            document.getElementById('cb-m-action-update').disabled = true;
+            document.getElementById('cb-m-id').disabled = true;
+            document.getElementById('cb-m-id').value = '';
+            document.getElementById('cb-m-form-title').innerHTML = '<i class="ti ti-calendar-plus"></i> Novo agendamento';
+            document.getElementById('cb-m-submit').innerHTML = '<i class="ti ti-send"></i> Solicitar agendamento';
+            
+            if (carSel) {
+                carSel.disabled = false;
+                carSel.value = '';
+                updateCarImg();
+            }
+            if (modalForm) { modalForm.reset(); }
         }
 
         function statusName(s) {
@@ -410,6 +459,13 @@
                     } else {
                         modalArr.value = '';
                     }
+                }
+                
+                // Se for edição, garante que o select do carro (desabilitado) seja enviado se necessário,
+                // mas como o backend já tem o carro no DB, o mais importante é enviar o ID.
+                // Reabilitamos temporariamente apenas para o POST se o browser não enviar campos disabled.
+                if (carSel && carSel.disabled) {
+                    // carSel.disabled = false; // Opcional: o backend geralmente não muda o carro no update
                 }
             });
         }

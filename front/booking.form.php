@@ -110,6 +110,13 @@ if (isset($_POST['add'])) {
 } elseif (isset($_POST['update'])) {
     $booking->check($_POST['id'], UPDATE);
     $booking->update($_POST);
+    
+    // Volta para o calendário quando o pedido veio do popup do calendário.
+    if (!empty($_POST['_from_calendar'])) {
+        $m = $_POST['_calendar_month'] ?? '';
+        $q = preg_match('/^\d{4}-\d{2}$/', (string) $m) ? ('?month=' . $m) : '';
+        Html::redirect(Plugin::getWebDir('carbooking') . '/front/calendar.php' . $q);
+    }
     Html::back();
 
 } elseif (isset($_POST['delete'])) {

@@ -70,7 +70,7 @@ class Booking extends CommonDBTM
             self::STATUS_APPROVED  => __('Aprovado', 'carbooking'),
             self::STATUS_REJECTED  => __('Recusado', 'carbooking'),
             self::STATUS_CANCELLED => __('Cancelado', 'carbooking'),
-            self::STATUS_ARRIVED   => __('Retorno', 'carbooking'),
+            self::STATUS_ARRIVED   => __('Chegado', 'carbooking'),
         ];
     }
 
@@ -676,6 +676,7 @@ class Booking extends CommonDBTM
                 'b.comment_validation', 'b.date_validation',
                 'b.arrival_sheet', 'b.arrival_obs',
                 'b.plugin_carbooking_cars_id AS car_id',
+                'b.groups_id',
                 'c.name AS car',
                 'u.name AS user_login', 'u.realname AS realname', 'u.firstname AS firstname',
                 'au.name AS ap_login', 'au.realname AS ap_realname', 'au.firstname AS ap_firstname',
@@ -752,6 +753,8 @@ class Booking extends CommonDBTM
                 'conflict'     => !empty($conflicts[(int) $row['id']]),
                 'status'       => $st,
                 'status_label' => self::getStatusName($st),
+                'car_id'       => (int) $row['car_id'],
+                'groups_id'    => (int) $row['groups_id'],
                 'can_cancel'   => ($can_approve || (int) $row['users_id'] === $uid)
                                     && !$returned
                                     && !in_array($st, [self::STATUS_REJECTED, self::STATUS_CANCELLED, self::STATUS_ARRIVED], true),

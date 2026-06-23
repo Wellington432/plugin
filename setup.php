@@ -12,7 +12,7 @@ use GlpiPlugin\Carbooking\Booking;
 use GlpiPlugin\Carbooking\Car;
 use GlpiPlugin\Carbooking\Profile as CarbookingProfile;
 
-define('PLUGIN_CARBOOKING_VERSION', '1.0.76');
+define('PLUGIN_CARBOOKING_VERSION', '1.0.77');
 
 // Faixa de versões do GLPI suportadas
 define('PLUGIN_CARBOOKING_MIN_GLPI_VERSION', '11.0.0');

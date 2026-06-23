@@ -1043,6 +1043,11 @@ body.carbooking-modal-open { overflow: hidden; }
     border-left-color: #f97316 !important; color: #9a3412 !important;
 }
 .carbooking-day-item.is-conflict { border-left-color: #f97316 !important; }
+.carbooking-day-item.is-editing {
+    border-color: #4263eb !important;
+    background: #f0f4ff !important;
+    box-shadow: 0 0 0 2px rgba(66, 99, 235, 0.2);
+}
 .carbooking-chip.status-conflict { background: rgba(249,115,22,0.15); color: #c2410c; }
 
 /* Ponto de alerta no botão aprovar quando há conflito */

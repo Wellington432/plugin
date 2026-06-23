@@ -39,7 +39,7 @@
     <div class="carbooking-legend">
         <span class="carbooking-legend__item"><span class="carbooking-dot dot-pending"></span> {{ __('Pendente', 'carbooking') }}</span>
         <span class="carbooking-legend__item"><span class="carbooking-dot dot-approved"></span> {{ __('Aprovado', 'carbooking') }}</span>
-        <span class="carbooking-legend__item"><span class="carbooking-dot dot-arrived"></span> {{ __('Retorno', 'carbooking') }}</span>
+        <span class="carbooking-legend__item"><span class="carbooking-dot dot-arrived"></span> {{ __('Chegado', 'carbooking') }}</span>
         <span class="carbooking-legend__item"><span class="carbooking-dot dot-conflict"></span> {{ __('Em conflito', 'carbooking') }}</span>
         <span class="carbooking-legend__item"><span class="carbooking-dot dot-cancelled"></span> {{ __('Cancelado', 'carbooking') }}</span>
     </div>
@@ -81,7 +81,9 @@
                         </div>
                     {% else %}
                         <form method="post" action="{{ web_dir }}/front/booking.form.php" class="carbooking-form" id="carbooking-modal-form">
-                            <input type="hidden" name="add" value="1">
+                            <input type="hidden" name="add" value="1" id="cb-m-action-add">
+                            <input type="hidden" name="update" value="1" id="cb-m-action-update" disabled>
+                            <input type="hidden" name="id" id="cb-m-id" disabled>
                             <input type="hidden" name="_from_calendar" value="1">
                             <input type="hidden" name="_calendar_month" id="carbooking-modal-month" value="{{ month }}">
                             <input type="hidden" name="_agenda_date" id="carbooking-modal-date" value="">
@@ -90,7 +92,7 @@
                             <input type="hidden" name="date_departure" id="cb-m-dep">
                             <input type="hidden" name="date_arrival" id="cb-m-arr">
 
-                            <h4 class="carbooking-modal__formtitle"><i class="ti ti-calendar-plus"></i> {{ __('Novo agendamento', 'carbooking') }}</h4>
+                            <h4 class="carbooking-modal__formtitle" id="cb-m-form-title"><i class="ti ti-calendar-plus"></i> {{ __('Novo agendamento', 'carbooking') }}</h4>
 
                             <label class="form-label" for="cb-m-car">1. {{ __('Qual carro?', 'carbooking') }}</label>
                             <div class="carbooking-carpick">
@@ -133,7 +135,7 @@
                             <label class="form-label" for="cb-m-reason">{{ __('Motivo', 'carbooking') }}</label>
                             <textarea class="form-control" id="cb-m-reason" name="reason" rows="2" placeholder="{{ __('Ex.: transporte de materiais', 'carbooking') }}"></textarea>
 
-                            <button type="submit" class="carbooking-submit">
+                            <button type="submit" class="carbooking-submit" id="cb-m-submit">
                                 <i class="ti ti-send"></i> {{ __('Solicitar agendamento', 'carbooking') }}
                             </button>
                             <p class="carbooking-hint">{{ __('O pedido fica pendente até a aprovação do administrador.', 'carbooking') }}</p>

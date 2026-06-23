@@ -9,7 +9,7 @@
         <i class="ti ti-arrow-right"></i>
         <span class="carbooking-help__step"><b>2</b> {{ __('Aprovados estão liberados', 'carbooking') }}</span>
         <i class="ti ti-arrow-right"></i>
-        <span class="carbooking-help__step"><b>3</b> {{ __('Ao voltar, marque o retorno', 'carbooking') }}</span>
+        <span class="carbooking-help__step"><b>3</b> {{ __('Ao voltar, marque a chegada', 'carbooking') }}</span>
     </div>
 
     {# ---------- Notificação para o aprovador ---------- #}
@@ -59,11 +59,11 @@
     {# ---------- Tabela de chegadas ---------- #}
     <section id="carbooking-arrived-section" class="carbooking-arrived-section">
         <header class="carbooking-blist-head carbooking-arrived-head">
-            <i class="ti ti-flag-check"></i> {{ __('Retornos', 'carbooking') }}
+            <i class="ti ti-flag-check"></i> {{ __('Viagens', 'carbooking') }}
             <span class="carbooking-blist-count">{{ blist.arrived|length }}</span>
         </header>
         {% if blist.arrived is empty %}
-            <p class="carbooking-blist-empty">{{ __('Nenhum retorno registrado.', 'carbooking') }}</p>
+            <p class="carbooking-blist-empty">{{ __('Nenhuma viagem registrada.', 'carbooking') }}</p>
         {% else %}
             <div class="carbooking-tablefilter">
             <div class="carbooking-filters">
@@ -79,7 +79,7 @@
                         <th>{{ __('Solicitante', 'carbooking') }}</th>
                         <th>{{ __('Setor', 'carbooking') }}</th>
                         <th>{{ __('Destino', 'carbooking') }}</th>
-                        <th>{{ __('Retorno', 'carbooking') }}</th>
+                        <th>{{ __('Chegado', 'carbooking') }}</th>
                         <th>{{ __('Folha', 'carbooking') }}</th>
                     </tr>
                 </thead>
