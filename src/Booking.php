@@ -1249,7 +1249,10 @@ class Booking extends CommonDBTM
 
     public static function getMenuContent()
     {
-        $web = Plugin::getWebDir('carbooking');
+        // Caminho RELATIVO à raiz do GLPI (sem root_doc): o GLPI já prepõe o
+        // root_doc nos links do menu. Usar o caminho completo aqui faz o prefixo
+        // duplicar (ex.: /glpi/glpi/...) quando o GLPI roda num subdiretório.
+        $web = Plugin::getWebDir('carbooking', true, false);
 
         $menu = [
             'title'   => __('Agendamento de Carros', 'carbooking'),
