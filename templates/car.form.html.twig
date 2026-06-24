@@ -189,4 +189,32 @@
         </div>
 
     </form>
+
+    {% if history is defined and history is not empty %}
+    <section class="carbooking-carhistory">
+        <h3 class="carbooking-carhistory__title"><i class="ti ti-history"></i> {{ __('Últimas modificações', 'carbooking') }}</h3>
+        <div class="carbooking-tablewrap">
+            <table class="carbooking-arrived-table carbooking-histtable">
+                <thead>
+                    <tr>
+                        <th>{{ __('Data', 'carbooking') }}</th>
+                        <th>{{ __('Usuário', 'carbooking') }}</th>
+                        <th>{{ __('Campo', 'carbooking') }}</th>
+                        <th>{{ __('Atualização', 'carbooking') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for h in history %}
+                    <tr>
+                        <td><b>{{ h.date }}</b></td>
+                        <td>{{ h.user }}</td>
+                        <td>{{ h.field ?: '—' }}</td>
+                        <td>{{ h.change|raw }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
 </div>

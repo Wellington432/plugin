@@ -69,11 +69,11 @@ if (isset($_POST['add'])) {
         Car::getTypeName(2),
         $_SERVER['PHP_SELF'],
         'tools',
-        Car::class,
+        Booking::class,
         'car'
     );
 
-    $car->display(['id' => $ID]);
+    $car->showForm($ID);
 
     Html::footer();
 }

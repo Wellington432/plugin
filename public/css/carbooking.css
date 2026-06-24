@@ -1252,3 +1252,15 @@ body.carbooking-modal-open { overflow: hidden; }
 .carbooking-day-item__reason.obs { color: #c2410c; }
 .carbooking-confirm-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1rem; }
 .carbooking-confirm-actions .carbooking-back { margin: 0; }
+
+/* ---------- v1.0.78: histórico do carro no estilo do projeto ---------- */
+.carbooking-carhistory { margin-top: 1.6rem; }
+.carbooking-carhistory__title {
+    display: flex; align-items: center; gap: 0.4rem; font-size: 1rem; font-weight: 700;
+    color: var(--cb-text, #1f2937); margin: 0 0 0.7rem;
+}
+.carbooking-histtable { width: 100%; }
+.carbooking-histtable td { vertical-align: top; }
+.carbooking-histtable td:first-child { white-space: nowrap; color: var(--cb-muted); }
+.carbooking-histtable del { color: #c92a2a; }
+.carbooking-histtable ins { color: #2b8a3e; text-decoration: none; }

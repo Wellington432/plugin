@@ -317,14 +317,17 @@ class Booking extends CommonDBTM
         }
         $ok = $this->update($update);
 
-        // Se houver observação, ela passa a ser a observação (comentário) do carro.
+        // Se houver observação, ela é registrada no HISTÓRICO do carro
+        // (não altera o campo "Observações" do carro).
         if ($ok && $obs !== null && trim($obs) !== '') {
             $carId = (int) ($this->fields['plugin_carbooking_cars_id'] ?? 0);
             if ($carId > 0) {
-                $car = new Car();
-                if ($car->getFromDB($carId)) {
-                    $car->update(['id' => $carId, 'comment' => $obs]);
-                }
+                $msg = sprintf(
+                    __('Observação de viagem (agendamento #%d): %s', 'carbooking'),
+                    (int) $this->fields['id'],
+                    $obs
+                );
+                \Log::history($carId, Car::class, [0, '', $msg], '', \Log::HISTORY_LOG_SIMPLE_MESSAGE);
             }
         }
         return $ok;

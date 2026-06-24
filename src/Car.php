@@ -237,12 +237,27 @@ class Car extends CommonDBTM
     {
         $this->initForm($ID, $options);
 
+        $history = [];
+        if (!$this->isNewItem()) {
+            $raw = \Log::getHistoryData($this, 0, 50);
+            foreach ($raw as $h) {
+                $history[] = [
+                    'id'     => $h['id'] ?? '',
+                    'date'   => $h['date_mod'] ?? '',
+                    'user'   => $h['user_name'] ?? '',
+                    'field'  => $h['field'] ?? '',
+                    'change' => $h['change'] ?? '',
+                ];
+            }
+        }
+
         TemplateRenderer::getInstance()->display('@carbooking/car.form.html.twig', [
             'item'        => $this,
             'params'      => $options,
             'can_edit'    => Session::haveRight(self::$rightname, UPDATE),
             'picture_url' => $this->getPictureUrl(),
             'web_dir'     => Plugin::getWebDir('carbooking'),
+            'history'     => $history,
         ]);
 
         return true;
