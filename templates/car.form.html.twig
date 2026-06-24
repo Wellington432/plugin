@@ -191,8 +191,13 @@
     </form>
 
     {% if history is defined and history is not empty %}
-    <section class="carbooking-carhistory">
+    <section class="carbooking-carhistory carbooking-tablefilter">
         <h3 class="carbooking-carhistory__title"><i class="ti ti-history"></i> {{ __('Últimas modificações', 'carbooking') }}</h3>
+        <div class="carbooking-filters">
+            <label>{{ __('Data', 'carbooking') }}<input type="date" class="cb-f-date form-control"></label>
+            <label>{{ __('A partir da hora', 'carbooking') }}<input type="time" class="cb-f-time form-control"></label>
+            <button type="button" class="carbooking-back cb-f-clear" style="align-self:flex-end;"><i class="ti ti-eraser"></i> {{ __('Limpar', 'carbooking') }}</button>
+        </div>
         <div class="carbooking-tablewrap">
             <table class="carbooking-arrived-table carbooking-histtable">
                 <thead>
@@ -205,7 +210,7 @@
                 </thead>
                 <tbody>
                 {% for h in history %}
-                    <tr>
+                    <tr data-date="{{ h.date|slice(0,10) }}" data-time="{{ h.date|slice(11,5) }}">
                         <td><b>{{ h.date }}</b></td>
                         <td>{{ h.user }}</td>
                         <td>{{ h.field ?: '—' }}</td>
