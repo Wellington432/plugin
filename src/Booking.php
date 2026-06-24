@@ -894,7 +894,7 @@ class Booking extends CommonDBTM
                 'glpi_groups AS g'        => ['ON' => ['b' => 'groups_id', 'g' => 'id']],
             ],
             'WHERE' => $where,
-            'ORDER' => 'b.date_departure DESC',
+            'ORDER' => 'b.id DESC',
         ]);
 
         $uid = (int) Session::getLoginUserID();

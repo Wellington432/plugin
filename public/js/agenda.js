@@ -129,7 +129,7 @@
         overlay.innerHTML =
             '<div class="carbooking-modal__backdrop" data-x></div>'
           + '<div class="carbooking-modal__dialog" style="max-width:460px;">'
-          + '<div class="carbooking-modal__head"><h3>Marcar retorno</h3>'
+          + '<div class="carbooking-modal__head"><h3>Marcar retorno de viagem</h3>'
           + '<button type="button" class="carbooking-modal__close" data-x><i class="ti ti-x"></i></button></div>'
           + '<div class="carbooking-modal__body">'
           + '<p>Confirme o retorno do carro. A data e a hora vêm preenchidas com o momento atual, mas você pode ajustar.</p>'
@@ -150,7 +150,7 @@
           + '<label class="form-label" style="margin-top:0.7rem;"><b>Observação</b> (opcional)</label>'
           + '<textarea name="arrival_obs" class="form-control" rows="2" placeholder="Se preenchida, vira a observação do carro."></textarea>'
           + '<label class="carbooking-check"><input type="checkbox" class="cb-confirm" name="confirm_ok" value="1"> Confirmo que as informações enviadas estão corretas.</label>'
-          + '<button type="submit" class="carbooking-submit cb-go" style="margin-top:0.8rem;" disabled><i class="ti ti-flag-check"></i> Confirmar retorno</button>'
+          + '<button type="submit" class="carbooking-submit cb-go" style="margin-top:0.8rem;" disabled><i class="ti ti-flag-check"></i> Confirmar retorno de viagem</button>'
           + '</form></div></div>';
         document.body.appendChild(overlay);
         document.body.classList.add('carbooking-modal-open');
