@@ -10,10 +10,6 @@
 
     <a class="carbooking-back" href="{{ web_dir }}/front/car.php"><i class="ti ti-arrow-left"></i> {{ __('Voltar para a Frota', 'carbooking') }}</a>
 
-    {% if can_edit %}
-        <label for="car-picture" class="carbooking-addimg"><i class="ti ti-photo-plus"></i> {{ __('Adicionar Imagem', 'carbooking') }}</label>
-    {% endif %}
-
 </div>
 
 <div class="carbooking-carform">
@@ -76,9 +72,13 @@
                        class="carbooking-imgfile"
                        {% if readonly %}disabled{% endif %}
                        hidden>
-                <div class="carbooking-imgname text-muted">{{ __('Use o botão "Adicionar Imagem" acima.', 'carbooking') }}</div>
+                <div class="carbooking-imgname text-muted">{{ __('Use o botão "Adicionar Imagem" abaixo.', 'carbooking') }}</div>
 
                 <small class="text-muted">{{ __('JPG, PNG, WEBP ou GIF.', 'carbooking') }}</small>
+
+                {% if can_edit %}
+                    <label for="car-picture" class="carbooking-addimg" style="margin-top:0.8rem;width:100%;justify-content:center;"><i class="ti ti-photo-plus"></i> {{ __('Adicionar Imagem', 'carbooking') }}</label>
+                {% endif %}
             </div>
 
             {# CAMPOS #}
@@ -157,35 +157,29 @@
                               {% if readonly %}readonly{% endif %}>{{ item.fields['comment'] }}</textarea>
                 </div>
 
+                {# AÇÕES (abaixo de Observações) #}
+                <div class="carbooking-formactions">
+                    {% if can_edit %}
+                        {% if is_new %}
+                            <button type="submit" name="add" value="1" class="btn btn-primary">
+                                <i class="ti ti-plus"></i> {{ __('Cadastrar carro', 'carbooking') }}
+                            </button>
+                        {% else %}
+                            <button type="submit" name="update" value="1" class="btn btn-primary">
+                                <i class="ti ti-device-floppy"></i> {{ _x('button', 'Save') }}
+                            </button>
+                            <button type="submit"
+                                    name="purge"
+                                    value="1"
+                                    class="btn btn-outline-danger"
+                                    onclick="return confirm('{{ __('Excluir definitivamente este carro?', 'carbooking') }}');">
+                                <i class="ti ti-trash"></i> {{ _x('button', 'Delete permanently') }}
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
             </div>
-        </div>
-
-        {# AÇÕES #}
-        <div class="carbooking-formactions">
-
-            {% if can_edit %}
-
-                {% if is_new %}
-                    <button type="submit" name="add" value="1" class="btn btn-primary">
-                        <i class="ti ti-plus"></i> {{ __('Cadastrar carro', 'carbooking') }}
-                    </button>
-
-                {% else %}
-                    <button type="submit" name="update" value="1" class="btn btn-primary">
-                        <i class="ti ti-device-floppy"></i> {{ _x('button', 'Save') }}
-                    </button>
-
-                    <button type="submit"
-                            name="purge"
-                            value="1"
-                            class="btn btn-outline-danger"
-                            onclick="return confirm('{{ __('Excluir definitivamente este carro?', 'carbooking') }}');">
-                        <i class="ti ti-trash"></i> {{ _x('button', 'Delete permanently') }}
-                    </button>
-                {% endif %}
-
-            {% endif %}
-
         </div>
 
     </form>
