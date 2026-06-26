@@ -23,7 +23,7 @@
             <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
         {% endif %}
         <a class="carbooking-tab" href="{{ web_dir }}/front/history.php"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</a>
-        <span class="carbooking-build">v1.0.82</span>
+        <span class="carbooking-build">v1.0.84</span>
     </div>
 
 
@@ -105,13 +105,17 @@
                                 <img id="cb-m-car-img" class="carbooking-car-thumb" alt="" hidden>
                             </div>
 
-                            <label class="form-label" for="cb-m-sector">2. {{ __('Qual setor?', 'carbooking') }}</label>
-                            <select class="form-select" id="cb-m-sector" name="groups_id">
-                                <option value="0">{{ __('— Selecione o setor —', 'carbooking') }}</option>
-                                {% for id, gname in groups %}
-                                    <option value="{{ id }}">{{ gname }}</option>
-                                {% endfor %}
+                            <label class="form-label" for="cb-m-driver">2. {{ __('Motorista', 'carbooking') }}</label>
+                            <input type="text" class="form-control" id="cb-m-driver" name="driver" placeholder="{{ __('Nome do motorista', 'carbooking') }}">
+
+                            <label class="form-label" for="cb-m-companion-q">{{ __('Vai ter acompanhante?', 'carbooking') }}</label>
+                            <select class="form-select carbooking-companion-q" id="cb-m-companion-q" name="has_companion" data-target="cb-m-companion-wrap">
+                                <option value="0">{{ __('Não', 'carbooking') }}</option>
+                                <option value="1">{{ __('Sim', 'carbooking') }}</option>
                             </select>
+                            <div id="cb-m-companion-wrap" class="carbooking-companion-wrap" hidden>
+                                <input type="text" class="form-control" id="cb-m-companion" name="companion" style="margin-top:0.5rem;" placeholder="{{ __('Nome do acompanhante (opcional)', 'carbooking') }}">
+                            </div>
 
                             <label class="form-label">3. {{ __('Saída — dia e hora', 'carbooking') }}</label>
                             <div class="carbooking-datetime">

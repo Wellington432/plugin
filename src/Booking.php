@@ -665,7 +665,7 @@ class Booking extends CommonDBTM
         $iterator = $DB->request([
             'SELECT' => [
                 'b.id', 'b.date_departure', 'b.date_arrival', 'b.destination',
-                'b.reason', 'b.status', 'b.users_id', 'b.date_returned',
+                'b.reason', 'b.status', 'b.driver', 'b.has_companion', 'b.companion', 'b.users_id', 'b.date_returned',
                 'b.comment_validation', 'b.date_validation',
                 'b.arrival_sheet', 'b.arrival_obs',
                 'b.plugin_carbooking_cars_id AS car_id',
@@ -733,6 +733,9 @@ class Booking extends CommonDBTM
                 'car'          => $row['car'] ?: __('Sem carro', 'carbooking'),
                 'user'         => $name,
                 'sector'       => $row['sector'] ?: __('Sem setor', 'carbooking'),
+                'driver'       => $row['driver'] ?? '',
+                'has_companion'=> (int) ($row['has_companion'] ?? 0),
+                'companion'    => $row['companion'] ?? '',
                 'departure'    => $dep,
                 'arrival'      => $row['date_arrival'],
                 'destination'  => $row['destination'] ?: '',
@@ -805,7 +808,7 @@ class Booking extends CommonDBTM
         $iterator = $DB->request([
             'SELECT' => [
                 'b.id', 'b.date_departure', 'b.date_arrival', 'b.destination',
-                'b.reason', 'b.status', 'b.comment_validation',
+                'b.reason', 'b.status', 'b.driver', 'b.has_companion', 'b.companion', 'b.comment_validation',
                 'c.name AS car',
                 'u.name AS user_login', 'u.realname AS realname', 'u.firstname AS firstname',
                 'g.name AS sector',
@@ -838,6 +841,9 @@ class Booking extends CommonDBTM
                 'car'          => $row['car'] ?: __('Sem carro', 'carbooking'),
                 'user'         => $name,
                 'sector'       => $row['sector'] ?: __('Sem setor', 'carbooking'),
+                'driver'       => $row['driver'] ?? '',
+                'has_companion'=> (int) ($row['has_companion'] ?? 0),
+                'companion'    => $row['companion'] ?? '',
                 'departure'    => $dep,
                 'arrival'      => $row['date_arrival'],
                 'destination'  => $row['destination'] ?: '',
@@ -870,7 +876,7 @@ class Booking extends CommonDBTM
         $iterator = $DB->request([
             'SELECT' => [
                 'b.id', 'b.date_departure', 'b.date_arrival', 'b.destination',
-                'b.reason', 'b.status', 'b.date_returned', 'b.users_id',
+                'b.reason', 'b.status', 'b.driver', 'b.has_companion', 'b.companion', 'b.date_returned', 'b.users_id',
                 'b.comment_validation', 'b.date_validation',
                 'b.arrival_sheet', 'b.arrival_obs',
                 'b.plugin_carbooking_cars_id AS car_id',
@@ -925,6 +931,9 @@ class Booking extends CommonDBTM
                 'car_id'       => (int) $row['car_id'],
                 'user'         => $name,
                 'sector'       => $row['sector'] ?: __('Sem setor', 'carbooking'),
+                'driver'       => $row['driver'] ?? '',
+                'has_companion'=> (int) ($row['has_companion'] ?? 0),
+                'companion'    => $row['companion'] ?? '',
                 'departure'    => $dep,
                 'arrival'      => $row['date_arrival'],
                 'destination'  => $row['destination'] ?: '',
@@ -992,6 +1001,7 @@ class Booking extends CommonDBTM
         $iterator = $DB->request([
             'SELECT' => [
                 'b.id', 'b.date_departure', 'b.date_arrival', 'b.status',
+                'b.driver', 'b.has_companion', 'b.companion',
                 'b.date_returned', 'b.date_validation', 'b.comment_validation',
                 'b.arrival_sheet', 'b.arrival_obs',
                 'c.name AS car',
@@ -1030,6 +1040,9 @@ class Booking extends CommonDBTM
                 'arrival'      => $row['date_arrival'],
                 'user'         => $name,
                 'sector'       => $row['sector'] ?: __('Sem setor', 'carbooking'),
+                'driver'       => $row['driver'] ?? '',
+                'has_companion'=> (int) ($row['has_companion'] ?? 0),
+                'companion'    => $row['companion'] ?? '',
                 'car'          => $row['car'] ?: __('Sem carro', 'carbooking'),
                 'status'       => $st,
                 'status_label' => self::getStatusName($st),

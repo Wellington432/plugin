@@ -6,7 +6,7 @@
     </div>
     <div class="carbooking-blist-item__body">
         <strong>{{ b.car }}</strong>
-        <div class="carbooking-blist-meta"><i class="ti ti-user"></i> {{ b.user }} &nbsp;·&nbsp; <i class="ti ti-building"></i> {{ b.sector }}</div>
+        <div class="carbooking-blist-meta"><i class="ti ti-user"></i> {{ b.user }} &nbsp;·&nbsp; <i class="ti ti-steering-wheel"></i> {{ b.driver ?: '—' }}{% if b.has_companion %} <span class="text-muted">+ {{ __('acompanhante', 'carbooking') }}{% if b.companion %} ({{ b.companion }}){% endif %}</span>{% endif %}</div>
         {% if b.destination %}<div class="carbooking-blist-meta"><i class="ti ti-map-pin"></i> {{ b.destination }}</div>{% endif %}
         {% if b.reason %}<div class="carbooking-blist-meta"><i class="ti ti-note"></i> {{ __('Motivo', 'carbooking') }}: {{ b.reason }}</div>{% endif %}
         {% if b.returned_at %}<div class="carbooking-blist-meta ok"><i class="ti ti-circle-check"></i> {{ __('Concluído em', 'carbooking') }} {{ b.returned_at|slice(8,2) }}/{{ b.returned_at|slice(5,2) }} {{ b.returned_at|slice(11,5) }}</div>{% endif %}

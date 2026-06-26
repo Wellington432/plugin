@@ -122,7 +122,7 @@
                     <thead><tr>
                         <th>{{ __('Data', 'carbooking') }}</th>
                         <th>{{ __('Solicitante', 'carbooking') }}</th>
-                        <th>{{ __('Setor', 'carbooking') }}</th>
+                        <th>{{ __('Motorista', 'carbooking') }}</th>
                         <th>{{ __('Carro', 'carbooking') }}</th>
                         <th>{{ __('Status', 'carbooking') }}</th>
                         <th>{{ __('Motivo', 'carbooking') }}</th>
@@ -132,7 +132,7 @@
                         <tr data-date="{{ b.departure|slice(0,10) }}" data-time="{{ b.departure|slice(11,5) }}" data-status="{{ b.status }}">
                             <td>{{ b.departure|slice(8,2) }}/{{ b.departure|slice(5,2) }} {{ b.departure|slice(11,5) }}</td>
                             <td>{{ b.user }}</td>
-                            <td><span class="carbooking-pill"><i class="ti ti-building"></i> {{ b.sector }}</span></td>
+                            <td><span class="carbooking-pill"><i class="ti ti-steering-wheel"></i> {{ b.driver ?: '—' }}</span></td>
                             <td>{{ b.car }}</td>
                             <td><span class="carbooking-chip status-{{ b.status == 2 ? 'approved' : (b.status == 3 ? 'rejected' : (b.status == 4 ? 'rejected' : 'pending')) }}">{{ b.status_label }}</span></td>
                             <td>
@@ -231,7 +231,7 @@
                         <span class="carbooking-year-time">{{ b.departure|slice(11,5) }}{% if b.arrival %} &rarr; {{ b.arrival|slice(11,5) }}{% endif %}</span>
                         <strong class="carbooking-year-car">{{ b.car }}</strong>
                         <span class="carbooking-year-user"><i class="ti ti-user"></i> {{ b.user }}</span>
-                        <span class="carbooking-pill"><i class="ti ti-building"></i> {{ b.sector }}</span>
+                        <span class="carbooking-pill"><i class="ti ti-steering-wheel"></i> {{ b.driver ?: '—' }}</span>
                         <span class="carbooking-chip status-{{ b.status == 2 ? 'approved' : (b.status == 3 ? 'rejected' : 'pending') }}">{{ b.status_label }}</span>
                     </div>
                 {% endfor %}

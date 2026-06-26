@@ -51,6 +51,9 @@ function plugin_carbooking_install()
             `plugin_carbooking_cars_id`  int unsigned NOT NULL DEFAULT 0,
             `users_id`                   int unsigned NOT NULL DEFAULT 0,
             `groups_id`                  int unsigned NOT NULL DEFAULT 0,
+            `driver`                     varchar(255) DEFAULT NULL,
+            `has_companion`              tinyint(1)   NOT NULL DEFAULT 0,
+            `companion`                  varchar(255) DEFAULT NULL,
             `date_departure`             datetime     DEFAULT NULL,
             `date_arrival`               datetime     DEFAULT NULL,
             `destination`                varchar(255) DEFAULT NULL,
@@ -99,6 +102,13 @@ function plugin_carbooking_install()
     if ($DB->tableExists($bookings) && !$DB->fieldExists($bookings, 'arrival_obs')) {
         $DB->doQuery("ALTER TABLE `$bookings`
             ADD COLUMN `arrival_obs` text DEFAULT NULL AFTER `arrival_sheet`");
+    }
+
+    if ($DB->tableExists($bookings) && !$DB->fieldExists($bookings, 'driver')) {
+        $DB->doQuery("ALTER TABLE `$bookings`
+            ADD COLUMN `driver` varchar(255) DEFAULT NULL AFTER `groups_id`,
+            ADD COLUMN `has_companion` tinyint(1) NOT NULL DEFAULT 0 AFTER `driver`,
+            ADD COLUMN `companion` varchar(255) DEFAULT NULL AFTER `has_companion`");
     }
 
     $migration->executeMigration();

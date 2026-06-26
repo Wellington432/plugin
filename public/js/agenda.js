@@ -12,11 +12,15 @@
     document.addEventListener('click', function (e) {
         var back = e.target.closest && e.target.closest('.carbooking-back');
         if (!back) { return; }
+        if (back.hasAttribute('data-x')) { return; } // botão de fechar modal: tratado em outro handler
         e.preventDefault();
-        if (window.history.length > 1) {
+        // Vai direto para o destino do botão (link ou data-home); só usa o
+        // histórico do navegador como último recurso.
+        var dest = back.dataset.home || (back.tagName === 'A' ? back.getAttribute('href') : '');
+        if (dest) {
+            window.location.href = dest;
+        } else if (window.history.length > 1) {
             window.history.back();
-        } else if (back.dataset.home) {
-            window.location.href = back.dataset.home;
         }
     });
 
@@ -51,6 +55,14 @@
         function close() { overlay.remove(); document.body.classList.remove('carbooking-modal-open'); }
         x.addEventListener('click', close);
         bd.addEventListener('click', close);
+    });
+
+    /* Mostra/esconde o nome do acompanhante conforme "Vai ter acompanhante?". */
+    document.addEventListener('change', function (e) {
+        var sel = e.target.closest && e.target.closest('.carbooking-companion-q');
+        if (!sel) { return; }
+        var wrap = document.getElementById(sel.getAttribute('data-target'));
+        if (wrap) { wrap.hidden = (sel.value !== '1'); }
     });
 
     /* Confirmação estilizada para formulários (ex.: aprovar com conflito). */

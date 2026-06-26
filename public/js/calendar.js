@@ -223,7 +223,7 @@
             return '<div class="carbooking-tip__item s-' + (b.status || 1) + '">'
                 + '<div class="carbooking-tip__line"><b>' + esc(period) + '</b> · ' + esc(b.car) + '</div>'
                 + '<div class="carbooking-tip__sub"><i class="ti ti-user"></i> ' + esc(b.user)
-                + ' · <i class="ti ti-building"></i> ' + esc(b.sector)
+                + ' · <i class="ti ti-steering-wheel"></i> ' + esc(b.driver || '—')
                 + ' · ' + esc(b.status_label) + '</div>'
                 + (b.destination ? '<div class="carbooking-tip__sub"><i class="ti ti-map-pin"></i> ' + esc(b.destination) + '</div>' : '')
                 + '</div>';
@@ -294,7 +294,7 @@
                     + (hasObs ? '<span class="carbooking-obsdot" title="Tem observação"></span> ' : '')
                     + '<strong>' + esc(b.car) + '</strong></div>'
                     + '<div class="carbooking-day-item__meta"><i class="ti ti-user"></i> ' + esc(b.user)
-                    + ' &nbsp;·&nbsp; <i class="ti ti-building"></i> ' + esc(b.sector) + '</div>'
+                    + ' &nbsp;·&nbsp; <i class="ti ti-steering-wheel"></i> ' + esc(b.driver || '—') + '</div>'
                     + '<div class="carbooking-day-item__meta"><i class="ti ti-clock"></i> ' + esc(period)
                     + (b.destination ? ' &nbsp;·&nbsp; <i class="ti ti-map-pin"></i> ' + esc(b.destination) : '')
                     + '</div>'
@@ -333,8 +333,14 @@
                         carSel.disabled = true; // Trava o carro
                         updateCarImg();
                     }
-                    var sectorSel = document.getElementById('cb-m-sector');
-                    if (sectorSel) { sectorSel.value = b.groups_id || 0; }
+                    var driverInp = document.getElementById('cb-m-driver');
+                    if (driverInp) { driverInp.value = b.driver || ''; }
+                    var compQ = document.getElementById('cb-m-companion-q');
+                    var compWrap = document.getElementById('cb-m-companion-wrap');
+                    var compInp = document.getElementById('cb-m-companion');
+                    if (compQ) { compQ.value = b.has_companion ? '1' : '0'; }
+                    if (compWrap) { compWrap.hidden = !b.has_companion; }
+                    if (compInp) { compInp.value = b.companion || ''; }
                     
                     if (mDate) { mDate.value = b.departure.substr(0, 10); }
                     if (mTime) { mTime.value = b.departure.substr(11, 5); }
