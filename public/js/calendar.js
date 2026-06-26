@@ -433,7 +433,7 @@
         // Combina dia + hora nos campos ocultos e junta os dias da semana
         // marcados, antes de enviar o formulário do popup.
         if (modalForm) {
-            if (mDate) { mDate.min = todayStr(); }
+            if (mDate) { mDate.removeAttribute('min'); }
             modalForm.addEventListener('submit', function (e) {
                 if (mDate && mDate.value && mDate.value < todayStr()) {
                     e.preventDefault();

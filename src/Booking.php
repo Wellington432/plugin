@@ -70,7 +70,7 @@ class Booking extends CommonDBTM
             self::STATUS_APPROVED  => __('Aprovado', 'carbooking'),
             self::STATUS_REJECTED  => __('Recusado', 'carbooking'),
             self::STATUS_CANCELLED => __('Cancelado', 'carbooking'),
-            self::STATUS_ARRIVED   => __('Chegado', 'carbooking'),
+            self::STATUS_ARRIVED   => __('Concluído', 'carbooking'),
         ];
     }
 
@@ -126,16 +126,6 @@ class Booking extends CommonDBTM
         }
         if (empty($input['date_departure'])) {
             Session::addMessageAfterRedirect(__('Informe a data e hora de saída.', 'carbooking'), false, ERROR);
-            return false;
-        }
-
-        // Não permite agendar em data que já passou.
-        if (substr($input['date_departure'], 0, 10) < date('Y-m-d')) {
-            Session::addMessageAfterRedirect(
-                __('Não é possível agendar em uma data que já passou. Escolha hoje ou uma data futura.', 'carbooking'),
-                false,
-                ERROR
-            );
             return false;
         }
 

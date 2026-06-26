@@ -109,12 +109,20 @@ if (isset($_POST['add'])) {
 
 } elseif (isset($_POST['update'])) {
     $booking->check($_POST['id'], UPDATE);
-    if ((int) ($booking->fields['status'] ?? 0) !== Booking::STATUS_PENDING) {
-        Session::addMessageAfterRedirect(__('Só agendamentos pendentes podem ser editados.', 'carbooking'), false, ERROR);
+    $st = (int) ($booking->fields['status'] ?? 0);
+    if (!in_array($st, [Booking::STATUS_PENDING, Booking::STATUS_APPROVED], true)) {
+        Session::addMessageAfterRedirect(__('Só agendamentos pendentes ou aprovados podem ser editados.', 'carbooking'), false, ERROR);
         Html::back();
     }
     // O carro nunca é alterado pela edição.
     unset($_POST['plugin_carbooking_cars_id']);
+    // Editar um agendamento aprovado faz ele voltar para pendente.
+    if ($st === Booking::STATUS_APPROVED) {
+        $_POST['status']            = Booking::STATUS_PENDING;
+        $_POST['users_id_approver'] = 0;
+        $_POST['date_validation']   = null;
+        Session::addMessageAfterRedirect(__('O agendamento foi editado e voltou para Pendente.', 'carbooking'), false, WARNING);
+    }
     $booking->update($_POST);
     
     // Volta para o calendário quando o pedido veio do popup do calendário.

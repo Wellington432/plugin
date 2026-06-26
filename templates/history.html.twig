@@ -13,7 +13,7 @@
             <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
         {% endif %}
         <span class="carbooking-tab is-active"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</span>
-        <span class="carbooking-build">v1.0.81</span>
+        <span class="carbooking-build">v1.0.82</span>
     </div>
 
     <div class="carbooking-panel__card carbooking-chartbox">
@@ -50,7 +50,7 @@
                     {% endfor %}
                 </select>
             </label>
-            <button type="button" id="cb-h-clear" class="carbooking-back" style="align-self:flex-end;"><i class="ti ti-eraser"></i> {{ __('Limpar', 'carbooking') }}</button>
+            <button type="button" id="cb-h-clear" class="carbooking-clearbtn" style="align-self:flex-end;"><i class="ti ti-eraser"></i> {{ __('Limpar', 'carbooking') }}</button>
         </div>
 
         {% if history is empty %}

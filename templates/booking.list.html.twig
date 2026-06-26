@@ -73,7 +73,7 @@
     {# ---------- Tabela de chegadas ---------- #}
     <section id="carbooking-arrived-section" class="carbooking-arrived-section">
         <header class="carbooking-blist-head carbooking-arrived-head">
-            <i class="ti ti-flag-check"></i> {{ __('Chegados', 'carbooking') }}
+            <i class="ti ti-flag-check"></i> {{ __('Concluídos', 'carbooking') }}
             <span class="carbooking-blist-count">{{ groups.arrived|length }}</span>
         </header>
         {% if groups.arrived is empty %}
@@ -83,7 +83,7 @@
             <div class="carbooking-filters">
                 <label>{{ __('Data', 'carbooking') }}<input type="date" class="cb-f-date form-control"></label>
                 <label>{{ __('A partir da hora', 'carbooking') }}<input type="time" class="cb-f-time form-control"></label>
-                <button type="button" class="carbooking-back cb-f-clear" style="align-self:flex-end;"><i class="ti ti-eraser"></i> {{ __('Limpar', 'carbooking') }}</button>
+                <button type="button" class="carbooking-clearbtn cb-f-clear" style="align-self:flex-end;"><i class="ti ti-eraser"></i> {{ __('Limpar', 'carbooking') }}</button>
             </div>
             <table class="carbooking-arrived-table">
                 <thead>

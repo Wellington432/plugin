@@ -1,7 +1,7 @@
 {# Formulário do agendamento + painel único de aprovação (somente admin) #}
 {% set is_new = item.isNewItem() %}
 {% set status = item.fields['status'] %}
-{% set editable = is_new or status == 1 %}
+{% set editable = is_new or status == 1 or status == 2 %}
 
 <div class="carbooking-bookingform">
 
@@ -25,6 +25,10 @@
                     <span class="text-muted">{{ __('Analisado em', 'carbooking') }} {{ item.fields['date_validation'] }}</span>
                 {% endif %}
             </div>
+        {% endif %}
+
+        {% if status == 2 %}
+            <div class="carbooking-warnbox"><i class="ti ti-alert-triangle"></i> {{ __('Atenção: ao salvar alterações, este agendamento aprovado voltará para Pendente e precisará ser aprovado novamente.', 'carbooking') }}</div>
         {% endif %}
 
         <div class="row">
