@@ -441,11 +441,6 @@
         if (modalForm) {
             if (mDate) { mDate.removeAttribute('min'); }
             modalForm.addEventListener('submit', function (e) {
-                if (mDate && mDate.value && mDate.value < todayStr()) {
-                    e.preventDefault();
-                    alert('Não é possível agendar em uma data que já passou. Escolha hoje ou uma data futura.');
-                    return;
-                }
                 if (mDate && mTime && mDate.value && mTime.value) {
                     modalDep.value = mDate.value + 'T' + mTime.value;
                 } else {

@@ -1299,3 +1299,7 @@ body.carbooking-modal-open { overflow: hidden; }
     padding: 0.7rem 1rem; border-radius: 10px; font-size: 0.88rem;
     background: rgba(249,115,22,0.12); color: #9a3412; border: 1px solid rgba(249,115,22,0.35);
 }
+
+/* ---------- v1.0.85: detalhe na tela de aprovação ---------- */
+.carbooking-rowdetail__line { display: flex; gap: 0.5rem; padding: 0.25rem 0; align-items: baseline; font-size: 0.9rem; }
+.carbooking-rowdetail__line .lbl { min-width: 110px; color: var(--cb-muted, #667085); display: inline-flex; align-items: center; gap: 0.3rem; }

@@ -65,6 +65,74 @@
         if (wrap) { wrap.hidden = (sel.value !== '1'); }
     });
 
+    /* Aprovação: mostra os detalhes numa telinha e exige confirmação (checkbox)
+       antes de aprovar de verdade. */
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (!form || !form.getAttribute || !form.hasAttribute('data-cb-approve')) { return; }
+        if (form.dataset.cbApproved === '1') { return; }
+        e.preventDefault();
+
+        function fmt(dt) {
+            if (!dt) { return '—'; }
+            var d = ('' + dt).replace('T', ' ');
+            // YYYY-MM-DD HH:MM
+            return d.slice(8, 10) + '/' + d.slice(5, 7) + '/' + d.slice(0, 4) + ' ' + d.slice(11, 16);
+        }
+        function esc2(s) {
+            return ('' + (s || '')).replace(/[&<>"]/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+            });
+        }
+        var d = form.dataset;
+        var conflict = d.conflict === '1';
+
+        var rows = ''
+            + row('ti-user', 'Solicitante', d.user)
+            + row('ti-steering-wheel', 'Motorista', d.driver || '—')
+            + (d.companion ? row('ti-users', 'Acompanhante', d.companion === '1' ? 'Sim' : d.companion) : '')
+            + row('ti-car', 'Carro', d.car)
+            + row('ti-logout', 'Saída', fmt(d.departure))
+            + row('ti-login', 'Chegada', d.arrival ? fmt(d.arrival) : '—')
+            + row('ti-map-pin', 'Destino', d.destination || '—')
+            + row('ti-note', 'Motivo', d.reason || '—');
+
+        function row(icon, label, val) {
+            return '<div class="carbooking-rowdetail__line"><span class="lbl"><i class="ti ' + icon + '"></i> ' + label + '</span> <strong>' + esc2(val) + '</strong></div>';
+        }
+
+        var overlay = document.createElement('div');
+        overlay.className = 'carbooking-modal';
+        overlay.innerHTML =
+            '<div class="carbooking-modal__backdrop" data-x></div>'
+          + '<div class="carbooking-modal__dialog" style="max-width:480px;">'
+          + '<div class="carbooking-modal__head"><h3><i class="ti ti-checkbox"></i> Aprovar agendamento</h3>'
+          + '<button type="button" class="carbooking-modal__close" data-x><i class="ti ti-x"></i></button></div>'
+          + '<div class="carbooking-modal__body">'
+          + (conflict ? '<div class="carbooking-warnbox" style="margin-bottom:0.8rem;"><i class="ti ti-alert-triangle"></i> Atenção: este horário tem conflito com outro agendamento do mesmo carro.</div>' : '')
+          + '<div class="carbooking-rowdetail" style="margin-bottom:0.9rem;">' + rows + '</div>'
+          + '<label class="carbooking-check"><input type="checkbox" class="cb-approve-ok"> Confirmo que revisei os detalhes e desejo aprovar este agendamento.</label>'
+          + '<div class="carbooking-confirm-actions">'
+          + '<button type="button" class="carbooking-back" data-x>Cancelar</button>'
+          + '<button type="button" class="carbooking-submit cb-approve-go" style="margin:0;background:#2f9e44;" disabled><i class="ti ti-check"></i> Confirmar aprovação</button>'
+          + '</div></div></div>';
+        document.body.appendChild(overlay);
+        document.body.classList.add('carbooking-modal-open');
+
+        function close() { overlay.remove(); document.body.classList.remove('carbooking-modal-open'); }
+        overlay.querySelectorAll('[data-x]').forEach(function (el) { el.addEventListener('click', close); });
+
+        var chk = overlay.querySelector('.cb-approve-ok');
+        var go = overlay.querySelector('.cb-approve-go');
+        chk.addEventListener('change', function () { go.disabled = !chk.checked; });
+        go.addEventListener('click', function () {
+            if (!chk.checked) { return; }
+            form.dataset.cbApproved = '1';
+            close();
+            if (form.requestSubmit) { form.requestSubmit(); } else { form.submit(); }
+        });
+    });
+
     /* Confirmação estilizada para formulários (ex.: aprovar com conflito). */
     document.addEventListener('submit', function (e) {
         var form = e.target;
