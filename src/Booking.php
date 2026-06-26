@@ -917,9 +917,12 @@ class Booking extends CommonDBTM
                 'car'          => $row['car'] ?: __('Sem carro', 'carbooking'),
                 'user'         => $nm,
                 'driver'       => $row['driver'] ?? '',
+                'has_companion'=> (int) ($row['has_companion'] ?? 0),
+                'companion'    => $row['companion'] ?? '',
                 'departure'    => (string) $row['date_departure'],
                 'arrival'      => $row['date_arrival'],
                 'destination'  => $row['destination'] ?: '',
+                'reason'       => $row['reason'] ?: '',
                 'status'       => $st,
                 'status_label' => self::getStatusName($st),
             ];
@@ -1101,6 +1104,36 @@ class Booking extends CommonDBTM
             }
         }
         return $conf;
+    }
+
+    /**
+     * Lista de usuários do GLPI para o campo Motorista: [nome => nome].
+     * O valor é o próprio nome (armazenado na coluna `driver`).
+     *
+     * @return array<string, string>
+     */
+    public static function getUsersList(): array
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
+
+        $out = [];
+        $iterator = $DB->request([
+            'SELECT' => ['id', 'name', 'realname', 'firstname'],
+            'FROM'   => 'glpi_users',
+            'WHERE'  => ['is_active' => 1, 'is_deleted' => 0],
+            'ORDER'  => ['realname ASC', 'firstname ASC', 'name ASC'],
+        ]);
+        foreach ($iterator as $u) {
+            $label = trim(($u['firstname'] ?? '') . ' ' . ($u['realname'] ?? ''));
+            if ($label === '') {
+                $label = $u['name'] ?? '';
+            }
+            if ($label !== '') {
+                $out[$label] = $label;
+            }
+        }
+        return $out;
     }
 
     /**
@@ -1337,6 +1370,7 @@ class Booking extends CommonDBTM
             'can_approve'    => self::canApprove(),
             'cars'           => Car::getActiveCars(),
             'groups'         => self::getGroupsList(),
+            'users'          => self::getUsersList(),
             'requester_name' => $requester,
             'web_dir'        => Plugin::getWebDir('carbooking'),
         ]);

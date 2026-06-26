@@ -65,6 +65,75 @@
         if (wrap) { wrap.hidden = (sel.value !== '1'); }
     });
 
+    /* Modal de edição de agendamento (usado por "Editar" e por "Remarcar"). */
+    function openEditModal(b, bform, csrf) {
+        function esc2(s) {
+            return ('' + (s == null ? '' : s)).replace(/[&<>"]/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+            });
+        }
+        function dtLocal(s) { return s ? ('' + s).replace(' ', 'T').slice(0, 16) : ''; }
+
+        var usersTpl = document.getElementById('carbooking-users-template');
+        var usersOptions = usersTpl ? usersTpl.innerHTML : '<option value="">—</option>';
+        var hasComp = (parseInt(b.has_companion, 10) === 1);
+
+        var overlay = document.createElement('div');
+        overlay.className = 'carbooking-modal';
+        overlay.innerHTML =
+            '<div class="carbooking-modal__backdrop" data-x></div>'
+          + '<div class="carbooking-modal__dialog" style="max-width:560px;">'
+          + '<div class="carbooking-modal__head"><h3><i class="ti ti-edit"></i> Editar agendamento</h3>'
+          + '<button type="button" class="carbooking-modal__close" data-x><i class="ti ti-x"></i></button></div>'
+          + '<form method="post" action="' + bform + '" class="carbooking-modal__body">'
+          + '<input type="hidden" name="update" value="1">'
+          + '<input type="hidden" name="id" value="' + esc2(b.id) + '">'
+          + '<input type="hidden" name="_glpi_csrf_token" value="' + esc2(csrf) + '">'
+          + '<input type="hidden" name="_from_calendar" value="1">'
+          + (b.status == 2 ? '<div class="carbooking-warnbox" style="margin-bottom:0.8rem;"><i class="ti ti-alert-triangle"></i> Ao salvar, este agendamento aprovado voltará para Pendente.</div>' : '')
+          + '<label class="form-label">Carro</label>'
+          + '<input type="text" class="form-control" value="' + esc2(b.car) + '" disabled>'
+          + '<label class="form-label" style="margin-top:0.6rem;">Motorista</label>'
+          + '<select class="form-select cb-e-driver" name="driver">' + usersOptions + '</select>'
+          + '<label class="form-label" style="margin-top:0.6rem;">Vai ter acompanhante?</label>'
+          + '<select class="form-select carbooking-companion-q cb-e-compq" name="has_companion" data-target="cb-e-compwrap">'
+          + '<option value="0"' + (hasComp ? '' : ' selected') + '>Não</option>'
+          + '<option value="1"' + (hasComp ? ' selected' : '') + '>Sim</option>'
+          + '</select>'
+          + '<div id="cb-e-compwrap" class="carbooking-companion-wrap"' + (hasComp ? '' : ' hidden') + '>'
+          + '<label class="form-label" style="margin-top:0.5rem;">Quantos acompanhantes?</label>'
+          + '<input type="number" min="1" step="1" class="form-control" name="companion" value="' + esc2(b.companion || '') + '" placeholder="1">'
+          + '</div>'
+          + '<label class="form-label" style="margin-top:0.6rem;">Saída — dia e hora</label>'
+          + '<input type="datetime-local" class="form-control" name="date_departure" value="' + dtLocal(b.departure) + '" required>'
+          + '<label class="form-label" style="margin-top:0.6rem;">Chegada — dia e hora (opcional)</label>'
+          + '<input type="datetime-local" class="form-control" name="date_arrival" value="' + dtLocal(b.arrival) + '">'
+          + '<label class="form-label" style="margin-top:0.6rem;">Destino</label>'
+          + '<input type="text" class="form-control" name="destination" value="' + esc2(b.destination) + '">'
+          + '<label class="form-label" style="margin-top:0.6rem;">Motivo</label>'
+          + '<textarea class="form-control" name="reason" rows="2">' + esc2(b.reason) + '</textarea>'
+          + '<div class="carbooking-confirm-actions">'
+          + '<button type="button" class="carbooking-back" data-x>Cancelar</button>'
+          + '<button type="submit" class="carbooking-submit" style="margin:0;"><i class="ti ti-device-floppy"></i> Salvar alterações</button>'
+          + '</div></form></div>';
+        document.body.appendChild(overlay);
+        document.body.classList.add('carbooking-modal-open');
+        // Pré-seleciona o motorista atual.
+        var drv = overlay.querySelector('.cb-e-driver');
+        if (drv) { drv.value = b.driver || ''; }
+        function close() { overlay.remove(); document.body.classList.remove('carbooking-modal-open'); }
+        overlay.querySelectorAll('[data-x]').forEach(function (el) { el.addEventListener('click', close); });
+    }
+
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('[data-cb-edit]');
+        if (!btn) { return; }
+        e.preventDefault();
+        var data = {};
+        try { data = JSON.parse(btn.getAttribute('data-booking') || '{}'); } catch (x) {}
+        openEditModal(data, btn.getAttribute('data-bform'), btn.getAttribute('data-csrf'));
+    });
+
     /* Conflito: "Analisar" abre os dois agendamentos e oferece
        remarcar/cancelar um deles, ou aprovar mesmo assim. */
     document.addEventListener('click', function (e) {
@@ -100,7 +169,7 @@
                 + '<div class="carbooking-rowdetail__line"><span class="lbl">Destino</span> ' + esc2(bk.destination || '—') + '</div>'
                 + '</div>'
                 + '<div class="carbooking-analyze-card__actions">'
-                + '<a class="carbooking-btn-info" href="' + bform + '?id=' + bk.id + '"><i class="ti ti-edit"></i> Remarcar</a>'
+                + '<button type="button" class="carbooking-btn-info cb-an-remarcar" data-bk="' + esc2(JSON.stringify(bk)) + '"><i class="ti ti-edit"></i> Remarcar</button>'
                 + '<button type="button" class="carbooking-btn-cancel cb-an-cancel" data-id="' + bk.id + '"><i class="ti ti-ban"></i> Cancelar</button>'
                 + '</div></div>';
         }
@@ -146,6 +215,15 @@
         // Aprovar o novo mesmo com conflito.
         overlay.querySelector('.cb-an-approve').addEventListener('click', function () {
             postAction({ approve: '1', id: newB.id, _glpi_csrf_token: csrf });
+        });
+        // Remarcar: abre o modal de edição daquele agendamento.
+        overlay.querySelectorAll('.cb-an-remarcar').forEach(function (el) {
+            el.addEventListener('click', function () {
+                var bk = {};
+                try { bk = JSON.parse(el.getAttribute('data-bk') || '{}'); } catch (x) {}
+                close();
+                openEditModal(bk, bform, csrf);
+            });
         });
     });
 

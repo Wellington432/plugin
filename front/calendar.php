@@ -38,6 +38,7 @@ TemplateRenderer::getInstance()->display('@carbooking/calendar.html.twig', [
     'can_delete'         => Session::haveRight(Booking::$rightname, PURGE),
     'cars'               => Car::getActiveCars(),
     'groups'             => Booking::getGroupsList(),
+    'users'              => Booking::getUsersList(),
     'blist'              => Booking::getGroupedByStatus(),
     'pending_count'      => Booking::countPending(),
     'can_approve'        => Booking::canApprove(),
