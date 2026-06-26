@@ -337,10 +337,13 @@
                     if (driverInp) { driverInp.value = b.driver || ''; }
                     var compQ = document.getElementById('cb-m-companion-q');
                     var compWrap = document.getElementById('cb-m-companion-wrap');
-                    var compInp = document.getElementById('cb-m-companion');
                     if (compQ) { compQ.value = b.has_companion ? '1' : '0'; }
                     if (compWrap) { compWrap.hidden = !b.has_companion; }
-                    if (compInp) { compInp.value = b.companion || ''; }
+                    var compHidden = compWrap ? compWrap.querySelector('.carbooking-companion-value') : null;
+                    var compCount = compWrap ? compWrap.querySelector('.carbooking-companion-count') : null;
+                    if (compHidden) { compHidden.value = b.companion || ''; }
+                    // Reaproveita o inicializador do módulo de acompanhantes (agenda.js).
+                    if (b.has_companion && compCount && window.cbInitComp) { window.cbInitComp(compCount); }
                     
                     if (mDate) { mDate.value = b.departure.substr(0, 10); }
                     if (mTime) { mTime.value = b.departure.substr(11, 5); }

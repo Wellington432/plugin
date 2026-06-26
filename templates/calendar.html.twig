@@ -23,7 +23,7 @@
             <a class="carbooking-tab" href="{{ web_dir }}/front/analytics.php"><i class="ti ti-chart-pie"></i> {{ __('Análise', 'carbooking') }}</a>
         {% endif %}
         <a class="carbooking-tab" href="{{ web_dir }}/front/history.php"><i class="ti ti-history"></i> {{ __('Histórico', 'carbooking') }}</a>
-        <span class="carbooking-build">v1.0.87</span>
+        <span class="carbooking-build">v1.0.88</span>
     </div>
 
 
@@ -125,8 +125,17 @@
                                 <option value="1">{{ __('Sim', 'carbooking') }}</option>
                             </select>
                             <div id="cb-m-companion-wrap" class="carbooking-companion-wrap" hidden>
-                                <label class="form-label" for="cb-m-companion">{{ __('Quantos acompanhantes?', 'carbooking') }}</label>
-                                <input type="number" min="1" step="1" class="form-control" id="cb-m-companion" name="companion" placeholder="1">
+                                <div class="carbooking-companion-block">
+                                    <label class="form-label" for="cb-m-companion-count">{{ __('Quantos acompanhantes? (máx. 4)', 'carbooking') }}</label>
+                                    <select class="form-select carbooking-companion-count" id="cb-m-companion-count" data-names="cb-m-companion-names">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                    </select>
+                                    <div id="cb-m-companion-names" class="carbooking-companion-names"></div>
+                                    <input type="hidden" name="companion" class="carbooking-companion-value">
+                                </div>
                             </div>
 
                             <label class="form-label">3. {{ __('Saída — dia e hora', 'carbooking') }}</label>

@@ -64,9 +64,17 @@
                     <option value="1" {{ item.fields['has_companion'] ? 'selected' : '' }}>{{ __('Sim', 'carbooking') }}</option>
                 </select>
                 <div id="bk-companion-wrap" class="carbooking-companion-wrap" {{ item.fields['has_companion'] ? '' : 'hidden' }}>
-                    <label class="form-label" style="margin-top:0.5rem;">{{ __('Quantos acompanhantes?', 'carbooking') }}</label>
-                    <input type="number" min="1" step="1" class="form-control" name="companion"
-                           value="{{ item.fields['companion'] }}" placeholder="1" {{ editable ? '' : 'disabled' }}>
+                    <div class="carbooking-companion-block">
+                        <label class="form-label" style="margin-top:0.5rem;">{{ __('Quantos acompanhantes? (máx. 4)', 'carbooking') }}</label>
+                        <select class="form-select carbooking-companion-count" data-names="bk-companion-names" {{ editable ? '' : 'disabled' }}>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                        <div id="bk-companion-names" class="carbooking-companion-names"></div>
+                        <input type="hidden" name="companion" class="carbooking-companion-value" value="{{ item.fields['companion'] }}">
+                    </div>
                 </div>
             </div>
 
@@ -149,7 +157,7 @@
                      <strong>{{ requester_name ?: '—' }}</strong></div>
                 <div><span class="lbl"><i class="ti ti-steering-wheel"></i> {{ __('Motorista', 'carbooking') }}</span>
                      <strong>{{ item.fields['driver'] ?: '—' }}</strong>
-                     {% if item.fields['has_companion'] %}<span class="text-muted"> · {{ item.fields['companion'] ?: 1 }} {{ __('acompanhante(s)', 'carbooking') }}</span>{% endif %}</div>
+                     {% if item.fields['has_companion'] %}{% set ccount = item.fields['companion'] ? item.fields['companion']|split(',')|length : 1 %}<span class="text-muted"> · {{ ccount }} {{ __('acompanhante(s)', 'carbooking') }}{% if item.fields['companion'] %}: {{ item.fields['companion'] }}{% endif %}</span>{% endif %}</div>
                 <div><span class="lbl"><i class="ti ti-car"></i> {{ __('Carro', 'carbooking') }}</span>
                      {% set carrow = cars[item.fields['plugin_carbooking_cars_id']] %}
                      <strong>{{ carrow ? carrow.name ~ (carrow.plate ? ' · ' ~ carrow.plate : '') : '—' }}</strong></div>

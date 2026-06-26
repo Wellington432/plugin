@@ -57,12 +57,87 @@
         bd.addEventListener('click', close);
     });
 
-    /* Mostra/esconde o nome do acompanhante conforme "Vai ter acompanhante?". */
+    /* ---- Acompanhantes: "Sim/Não" + quantidade (máx. 4) + N campos de nome ---- */
+    var CB_MAX_COMP = 4;
+
+    function cbCompBlock(el) { return el.closest('.carbooking-companion-block'); }
+
+    function cbSyncComp(block) {
+        if (!block) { return; }
+        var hidden = block.querySelector('.carbooking-companion-value');
+        if (!hidden) { return; }
+        var names = [].slice.call(block.querySelectorAll('.cb-cname')).map(function (i) {
+            return i.value.trim();
+        }).filter(Boolean);
+        hidden.value = names.join(', ');
+    }
+
+    function cbRenderNames(countSel, prefill) {
+        var block = cbCompBlock(countSel);
+        if (!block) { return; }
+        var namesDiv = block.querySelector('.carbooking-companion-names');
+        if (!namesDiv) { return; }
+        var n = parseInt(countSel.value, 10) || 1;
+        if (n < 1) { n = 1; }
+        if (n > CB_MAX_COMP) { n = CB_MAX_COMP; countSel.value = n; }
+        // Preserva os nomes já digitados.
+        var existing = prefill || [].slice.call(namesDiv.querySelectorAll('.cb-cname')).map(function (i) { return i.value; });
+        var html = '';
+        for (var k = 0; k < n; k++) {
+            var val = existing[k] ? ('' + existing[k]).replace(/"/g, '&quot;') : '';
+            html += '<input type="text" class="form-control cb-cname" style="margin-top:0.4rem;" placeholder="Nome do acompanhante ' + (k + 1) + '" value="' + val + '">';
+        }
+        namesDiv.innerHTML = html;
+        cbSyncComp(block);
+    }
+
+    function cbInitComp(countSel) {
+        var block = cbCompBlock(countSel);
+        if (!block) { return; }
+        var hidden = block.querySelector('.carbooking-companion-value');
+        var names = (hidden && hidden.value) ? hidden.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean) : [];
+        var n = names.length || (parseInt(countSel.value, 10) || 1);
+        if (n < 1) { n = 1; } if (n > CB_MAX_COMP) { n = CB_MAX_COMP; }
+        countSel.value = n;
+        cbRenderNames(countSel, names);
+    }
+    window.cbInitComp = cbInitComp;
+
+    // Sim/Não → mostra/esconde e inicializa os campos.
     document.addEventListener('change', function (e) {
         var sel = e.target.closest && e.target.closest('.carbooking-companion-q');
         if (!sel) { return; }
         var wrap = document.getElementById(sel.getAttribute('data-target'));
-        if (wrap) { wrap.hidden = (sel.value !== '1'); }
+        if (!wrap) { return; }
+        var on = (sel.value === '1');
+        wrap.hidden = !on;
+        if (on) {
+            var countSel = wrap.querySelector('.carbooking-companion-count');
+            if (countSel) { cbInitComp(countSel); }
+        } else {
+            var block = wrap.querySelector('.carbooking-companion-block');
+            if (block) { var h = block.querySelector('.carbooking-companion-value'); if (h) { h.value = ''; } }
+        }
+    });
+    // Mudou a quantidade → renderiza N campos.
+    document.addEventListener('change', function (e) {
+        var cs = e.target.closest && e.target.closest('.carbooking-companion-count');
+        if (cs) { cbRenderNames(cs); }
+    });
+    // Digitou um nome → atualiza o valor enviado.
+    document.addEventListener('input', function (e) {
+        var nm = e.target.closest && e.target.closest('.cb-cname');
+        if (nm) { cbSyncComp(cbCompBlock(nm)); }
+    });
+    // Inicializa os blocos já presentes na página.
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.carbooking-companion-q').forEach(function (sel) {
+            var wrap = document.getElementById(sel.getAttribute('data-target'));
+            if (wrap && sel.value === '1') {
+                var cs = wrap.querySelector('.carbooking-companion-count');
+                if (cs) { cbInitComp(cs); }
+            }
+        });
     });
 
     /* Modal de edição de agendamento (usado por "Editar" e por "Remarcar"). */
@@ -101,8 +176,12 @@
           + '<option value="1"' + (hasComp ? ' selected' : '') + '>Sim</option>'
           + '</select>'
           + '<div id="cb-e-compwrap" class="carbooking-companion-wrap"' + (hasComp ? '' : ' hidden') + '>'
-          + '<label class="form-label" style="margin-top:0.5rem;">Quantos acompanhantes?</label>'
-          + '<input type="number" min="1" step="1" class="form-control" name="companion" value="' + esc2(b.companion || '') + '" placeholder="1">'
+          + '<div class="carbooking-companion-block">'
+          + '<label class="form-label" style="margin-top:0.5rem;">Quantos acompanhantes? (máx. 4)</label>'
+          + '<select class="form-select carbooking-companion-count" data-names="cb-e-cnames"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>'
+          + '<div id="cb-e-cnames" class="carbooking-companion-names"></div>'
+          + '<input type="hidden" name="companion" class="carbooking-companion-value" value="' + esc2(b.companion || '') + '">'
+          + '</div>'
           + '</div>'
           + '<label class="form-label" style="margin-top:0.6rem;">Saída — dia e hora</label>'
           + '<input type="datetime-local" class="form-control" name="date_departure" value="' + dtLocal(b.departure) + '" required>'
@@ -121,6 +200,9 @@
         // Pré-seleciona o motorista atual.
         var drv = overlay.querySelector('.cb-e-driver');
         if (drv) { drv.value = b.driver || ''; }
+        // Inicializa os campos de acompanhantes (se houver).
+        var cs = overlay.querySelector('.carbooking-companion-count');
+        if (cs && parseInt(b.has_companion, 10) === 1) { cbInitComp(cs); }
         function close() { overlay.remove(); document.body.classList.remove('carbooking-modal-open'); }
         overlay.querySelectorAll('[data-x]').forEach(function (el) { el.addEventListener('click', close); });
     }
