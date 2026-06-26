@@ -902,12 +902,27 @@ class Booking extends CommonDBTM
         // Primeiro carrega tudo e calcula conflitos de horário.
         $rows = [];
         $confInput = [];
+        $byId = [];
         foreach ($iterator as $row) {
             $rows[] = $row;
             $st = (int) $row['status'];
             $start = strtotime((string) $row['date_departure']);
             $end   = !empty($row['date_arrival']) ? strtotime((string) $row['date_arrival']) : ($start + 3600);
             $confInput[] = ['id' => (int) $row['id'], 'car_id' => (int) $row['car_id'], 'start' => $start, 'end' => $end, 'status' => $st];
+
+            $nm = trim(($row['firstname'] ?? '') . ' ' . ($row['realname'] ?? ''));
+            if ($nm === '') { $nm = $row['user_login'] ?? ''; }
+            $byId[(int) $row['id']] = [
+                'id'           => (int) $row['id'],
+                'car'          => $row['car'] ?: __('Sem carro', 'carbooking'),
+                'user'         => $nm,
+                'driver'       => $row['driver'] ?? '',
+                'departure'    => (string) $row['date_departure'],
+                'arrival'      => $row['date_arrival'],
+                'destination'  => $row['destination'] ?: '',
+                'status'       => $st,
+                'status_label' => self::getStatusName($st),
+            ];
         }
         $conflicts = self::markConflicts($confInput);
 
@@ -945,6 +960,7 @@ class Booking extends CommonDBTM
                 'cancelled_by' => $apName,
                 'cancelled_at' => $row['date_validation'],
                 'conflict'     => !empty($conflicts[(int) $row['id']]),
+                'conflict_with'=> array_values(array_filter(array_map(static function ($cid) use ($byId) { return $byId[$cid] ?? null; }, $conflicts[(int) $row['id']] ?? []))),
                 'status'       => $st,
                 'status_label' => self::getStatusName($st),
                 // Não pode cancelar o que já chegou, foi recusado ou já está cancelado.
@@ -1073,15 +1089,14 @@ class Booking extends CommonDBTM
                 self::STATUS_ARRIVED
             ], true);
         }));
-       
+
         foreach ($active as $a) {
             foreach ($active as $b) {
                 if ($a['id'] === $b['id'] || $a['car_id'] <= 0 || $a['car_id'] !== $b['car_id']) {
                     continue;
                 }
                 if ($a['start'] < $b['end'] && $b['start'] < $a['end']) {
-                    $conf[$a['id']] = true;
-                    break;
+                    $conf[$a['id']][] = (int) $b['id'];
                 }
             }
         }

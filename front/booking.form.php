@@ -86,6 +86,20 @@ if (isset($_POST['add'])) {
     }
     Html::redirect(Plugin::getWebDir('carbooking') . '/front/calendar.php#carbooking-arrived-section');
 
+} elseif (isset($_POST['update_obs'])) {
+    // Editar / remover a observação de viagem (somente aprovador).
+    Session::checkRight(Booking::$rightname, Booking::APPROVE);
+    if ($booking->getFromDB((int) $_POST['id'])) {
+        $obs = isset($_POST['arrival_obs']) ? trim((string) $_POST['arrival_obs']) : '';
+        $booking->update(['id' => (int) $_POST['id'], 'arrival_obs' => $obs]);
+        Session::addMessageAfterRedirect(
+            $obs === '' ? __('Observação removida.', 'carbooking') : __('Observação atualizada.', 'carbooking'),
+            false,
+            INFO
+        );
+    }
+    Html::back();
+
 } elseif (isset($_POST['upload_sheet'])) {
     // Adiciona folha a um agendamento já marcado como chegada (sem folha ainda).
     Session::checkRight(Booking::$rightname, Booking::APPROVE);

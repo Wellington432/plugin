@@ -86,8 +86,9 @@
                 <tbody>
                 {% for b in blist.arrived %}
                     {% set hasobs = b.obs is not empty %}
-                    <tr class="carbooking-arow{{ hasobs ? ' has-obs cb-rowtoggle' : '' }}"{% if hasobs %} data-rowtoggle="1"{% endif %} data-date="{{ b.departure|slice(0,10) }}" data-time="{{ b.departure|slice(11,5) }}" data-status="{{ b.status }}">
+                    <tr class="carbooking-arow cb-rowtoggle{{ hasobs ? ' has-obs' : '' }}" data-rowtoggle="1" data-date="{{ b.departure|slice(0,10) }}" data-time="{{ b.departure|slice(11,5) }}" data-status="{{ b.status }}">
                         <td>
+                            <i class="ti ti-chevron-right carbooking-rowcaret"></i>
                             {% if hasobs %}<span class="carbooking-obsdot" title="{{ __('Tem observação', 'carbooking') }}"></span> <span class="carbooking-obstag">{{ __('observação', 'carbooking') }}</span> {% endif %}
                             <b>{{ b.departure|slice(8,2) }}/{{ b.departure|slice(5,2) }}</b> {{ b.departure|slice(11,5) }}
                         </td>
@@ -107,11 +108,20 @@
                             {% else %}—{% endif %}
                         </td>
                     </tr>
-                    {% if hasobs %}
                     <tr class="carbooking-arow-child" hidden>
-                        <td colspan="7"><i class="ti ti-message-circle"></i> <b>{{ __('Observação', 'carbooking') }}:</b> {{ b.obs }}</td>
+                        <td colspan="7">
+                            <div class="carbooking-obsbox">
+                                <div><i class="ti ti-message-circle"></i> <b>{{ __('Observação', 'carbooking') }}:</b> <span class="carbooking-obsval">{{ b.obs ?: __('(sem observação)', 'carbooking') }}</span></div>
+                                {% if can_approve %}
+                                    <button type="button" class="carbooking-btn-info" data-cb-editobs
+                                            data-id="{{ b.id }}"
+                                            data-obs="{{ b.obs }}"
+                                            data-bform="{{ web_dir }}/front/booking.form.php"
+                                            data-csrf="{{ csrf }}"><i class="ti ti-edit"></i> {{ __('Editar observação', 'carbooking') }}</button>
+                                {% endif %}
+                            </div>
+                        </td>
                     </tr>
-                    {% endif %}
                 {% endfor %}
                 </tbody>
             </table>

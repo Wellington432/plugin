@@ -65,6 +65,132 @@
         if (wrap) { wrap.hidden = (sel.value !== '1'); }
     });
 
+    /* Conflito: "Analisar" abre os dois agendamentos e oferece
+       remarcar/cancelar um deles, ou aprovar mesmo assim. */
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('[data-cb-analyze]');
+        if (!btn) { return; }
+        e.preventDefault();
+        var bform = btn.getAttribute('data-bform');
+        var csrf = btn.getAttribute('data-csrf');
+        var newB = {};
+        var conflicts = [];
+        try { newB = JSON.parse(btn.getAttribute('data-new') || '{}'); } catch (x) {}
+        try { conflicts = JSON.parse(btn.getAttribute('data-conflicts') || '[]'); } catch (x) {}
+
+        function esc2(s) {
+            return ('' + (s == null ? '' : s)).replace(/[&<>"]/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+            });
+        }
+        function fmt(dt) {
+            if (!dt) { return '—'; }
+            var d = ('' + dt).replace('T', ' ');
+            return d.slice(8, 10) + '/' + d.slice(5, 7) + ' ' + d.slice(11, 16);
+        }
+        function card(bk, isNew) {
+            var label = isNew ? 'Novo (pendente)' : (bk.status_label || 'Em conflito');
+            return '<div class="carbooking-analyze-card' + (isNew ? ' is-new' : '') + '">'
+                + '<div class="carbooking-analyze-card__tag">' + esc2(label) + '</div>'
+                + '<div class="carbooking-rowdetail">'
+                + '<div class="carbooking-rowdetail__line"><span class="lbl">Carro</span> <strong>' + esc2(bk.car) + '</strong></div>'
+                + '<div class="carbooking-rowdetail__line"><span class="lbl">Solicitante</span> ' + esc2(bk.user) + '</div>'
+                + '<div class="carbooking-rowdetail__line"><span class="lbl">Motorista</span> ' + esc2(bk.driver || '—') + '</div>'
+                + '<div class="carbooking-rowdetail__line"><span class="lbl">Saída → Chegada</span> ' + esc2(fmt(bk.departure)) + ' → ' + esc2(bk.arrival ? fmt(bk.arrival) : '—') + '</div>'
+                + '<div class="carbooking-rowdetail__line"><span class="lbl">Destino</span> ' + esc2(bk.destination || '—') + '</div>'
+                + '</div>'
+                + '<div class="carbooking-analyze-card__actions">'
+                + '<a class="carbooking-btn-info" href="' + bform + '?id=' + bk.id + '"><i class="ti ti-edit"></i> Remarcar</a>'
+                + '<button type="button" class="carbooking-btn-cancel cb-an-cancel" data-id="' + bk.id + '"><i class="ti ti-ban"></i> Cancelar</button>'
+                + '</div></div>';
+        }
+
+        var cards = card(newB, true);
+        conflicts.forEach(function (c) { cards += card(c, false); });
+
+        var overlay = document.createElement('div');
+        overlay.className = 'carbooking-modal';
+        overlay.innerHTML =
+            '<div class="carbooking-modal__backdrop" data-x></div>'
+          + '<div class="carbooking-modal__dialog" style="max-width:680px;">'
+          + '<div class="carbooking-modal__head"><h3><i class="ti ti-alert-triangle" style="color:#f97316;"></i> Conflito de horário</h3>'
+          + '<button type="button" class="carbooking-modal__close" data-x><i class="ti ti-x"></i></button></div>'
+          + '<div class="carbooking-modal__body">'
+          + '<p>Este carro já tem agendamento no mesmo horário. Remarque ou cancele um dos lados, ou aprove mesmo assim.</p>'
+          + '<div class="carbooking-analyze-grid">' + cards + '</div>'
+          + '<div class="carbooking-confirm-actions">'
+          + '<button type="button" class="carbooking-back" data-x>Fechar</button>'
+          + '<button type="button" class="carbooking-submit cb-an-approve" style="margin:0;background:#2f9e44;"><i class="ti ti-check"></i> Aprovar mesmo assim</button>'
+          + '</div></div></div>';
+        document.body.appendChild(overlay);
+        document.body.classList.add('carbooking-modal-open');
+        function close() { overlay.remove(); document.body.classList.remove('carbooking-modal-open'); }
+        overlay.querySelectorAll('[data-x]').forEach(function (el) { el.addEventListener('click', close); });
+
+        function postAction(fields) {
+            var f = document.createElement('form');
+            f.method = 'post'; f.action = bform;
+            Object.keys(fields).forEach(function (k) {
+                var i = document.createElement('input');
+                i.type = 'hidden'; i.name = k; i.value = fields[k]; f.appendChild(i);
+            });
+            document.body.appendChild(f); f.submit();
+        }
+        // Cancelar um dos agendamentos (motivo padrão).
+        overlay.querySelectorAll('.cb-an-cancel').forEach(function (el) {
+            el.addEventListener('click', function () {
+                if (!window.confirm('Cancelar este agendamento?')) { return; }
+                postAction({ cancel: '1', id: el.getAttribute('data-id'), cancel_reason: 'Cancelado na análise de conflito', _glpi_csrf_token: csrf });
+            });
+        });
+        // Aprovar o novo mesmo com conflito.
+        overlay.querySelector('.cb-an-approve').addEventListener('click', function () {
+            postAction({ approve: '1', id: newB.id, _glpi_csrf_token: csrf });
+        });
+    });
+
+    /* Editar / remover a observação de uma viagem concluída. */
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('[data-cb-editobs]');
+        if (!btn) { return; }
+        e.preventDefault();
+        var id = btn.getAttribute('data-id');
+        var obs = btn.getAttribute('data-obs') || '';
+        var bform = btn.getAttribute('data-bform');
+        var csrf = btn.getAttribute('data-csrf');
+
+        var overlay = document.createElement('div');
+        overlay.className = 'carbooking-modal';
+        overlay.innerHTML =
+            '<div class="carbooking-modal__backdrop" data-x></div>'
+          + '<div class="carbooking-modal__dialog" style="max-width:460px;">'
+          + '<div class="carbooking-modal__head"><h3><i class="ti ti-message-circle"></i> Observação da viagem</h3>'
+          + '<button type="button" class="carbooking-modal__close" data-x><i class="ti ti-x"></i></button></div>'
+          + '<form method="post" action="' + bform + '" class="carbooking-modal__body">'
+          + '<input type="hidden" name="update_obs" value="1">'
+          + '<input type="hidden" name="id" value="' + id + '">'
+          + '<input type="hidden" name="_glpi_csrf_token" value="' + csrf + '">'
+          + '<textarea name="arrival_obs" class="form-control" rows="3" placeholder="Digite a observação...">' + obs + '</textarea>'
+          + '<div class="carbooking-confirm-actions">'
+          + '<button type="button" class="carbooking-back cb-obs-remove" data-x style="color:#c92a2a;border-color:#f3b6b6;"><i class="ti ti-trash"></i> Remover</button>'
+          + '<button type="submit" class="carbooking-submit" style="margin:0;"><i class="ti ti-device-floppy"></i> Salvar</button>'
+          + '</div></form></div>';
+        document.body.appendChild(overlay);
+        document.body.classList.add('carbooking-modal-open');
+
+        function close() { overlay.remove(); document.body.classList.remove('carbooking-modal-open'); }
+        overlay.querySelectorAll('[data-x]').forEach(function (el) {
+            if (el.classList.contains('cb-obs-remove')) { return; }
+            el.addEventListener('click', close);
+        });
+        // Remover = limpa o texto e envia (observação vazia apaga).
+        overlay.querySelector('.cb-obs-remove').addEventListener('click', function () {
+            var form = overlay.querySelector('form');
+            form.querySelector('textarea[name="arrival_obs"]').value = '';
+            if (form.requestSubmit) { form.requestSubmit(); } else { form.submit(); }
+        });
+    });
+
     /* Aprovação: mostra os detalhes numa telinha e exige confirmação (checkbox)
        antes de aprovar de verdade. */
     document.addEventListener('submit', function (e) {

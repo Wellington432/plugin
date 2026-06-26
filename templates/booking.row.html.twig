@@ -21,22 +21,29 @@
             {% endif %}
 
             {% if b.status == 1 and can_approve %}
-                <form method="post" action="{{ web_dir }}/front/booking.form.php"
-                      data-cb-approve
-                      data-user="{{ b.user }}"
-                      data-driver="{{ b.driver }}"
-                      data-car="{{ b.car }}"
-                      data-departure="{{ b.departure }}"
-                      data-arrival="{{ b.arrival }}"
-                      data-destination="{{ b.destination }}"
-                      data-reason="{{ b.reason }}"
-                      data-companion="{% if b.has_companion %}{{ b.companion ?: '1' }}{% endif %}"
-                      {% if b.conflict %}data-conflict="1"{% endif %}>
-                    <input type="hidden" name="id" value="{{ b.id }}">
-                    <input type="hidden" name="approve" value="1">
-                    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf }}">
-                    <button type="submit" class="carbooking-btn-approve"><i class="ti ti-check"></i> {{ __('Aprovar', 'carbooking') }}{% if b.conflict %} <span class="carbooking-confdot" title="{{ __('Conflito de horário', 'carbooking') }}"></span>{% endif %}</button>
-                </form>
+                {% if b.conflict %}
+                    <button type="button" class="carbooking-btn-approve carbooking-btn-analyze"
+                            data-cb-analyze
+                            data-id="{{ b.id }}"
+                            data-bform="{{ web_dir }}/front/booking.form.php"
+                            data-csrf="{{ csrf }}"
+                            data-new="{{ {'id': b.id, 'car': b.car, 'user': b.user, 'driver': b.driver, 'departure': b.departure, 'arrival': b.arrival, 'destination': b.destination, 'reason': b.reason}|json_encode|e('html_attr') }}"
+                            data-conflicts="{{ b.conflict_with|json_encode|e('html_attr') }}">
+                        <i class="ti ti-alert-triangle"></i> {{ __('Analisar', 'carbooking') }}
+                    </button>
+                {% else %}
+                    <form method="post" action="{{ web_dir }}/front/booking.form.php"
+                          data-cb-approve
+                          data-user="{{ b.user }}" data-driver="{{ b.driver }}" data-car="{{ b.car }}"
+                          data-departure="{{ b.departure }}" data-arrival="{{ b.arrival }}"
+                          data-destination="{{ b.destination }}" data-reason="{{ b.reason }}"
+                          data-companion="{% if b.has_companion %}{{ b.companion ?: '1' }}{% endif %}">
+                        <input type="hidden" name="id" value="{{ b.id }}">
+                        <input type="hidden" name="approve" value="1">
+                        <input type="hidden" name="_glpi_csrf_token" value="{{ csrf }}">
+                        <button type="submit" class="carbooking-btn-approve"><i class="ti ti-check"></i> {{ __('Aprovar', 'carbooking') }}</button>
+                    </form>
+                {% endif %}
             {% endif %}
 
             {% if b.status == 2 and can_approve and not b.returned_at %}

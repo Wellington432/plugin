@@ -1303,3 +1303,17 @@ body.carbooking-modal-open { overflow: hidden; }
 /* ---------- v1.0.85: detalhe na tela de aprovação ---------- */
 .carbooking-rowdetail__line { display: flex; gap: 0.5rem; padding: 0.25rem 0; align-items: baseline; font-size: 0.9rem; }
 .carbooking-rowdetail__line .lbl { min-width: 110px; color: var(--cb-muted, #667085); display: inline-flex; align-items: center; gap: 0.3rem; }
+
+/* ---------- v1.0.86: editar observação + tela Analisar (conflito) ---------- */
+.carbooking-obsbox { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: space-between; }
+.carbooking-rowcaret { transition: transform 0.15s; color: var(--cb-muted, #98a2b3); }
+.carbooking-arow.is-open .carbooking-rowcaret { transform: rotate(90deg); }
+
+.carbooking-btn-analyze { background: rgba(249,115,22,0.14) !important; color: #c2410c !important; border: 1px solid #f97316 !important; }
+.carbooking-analyze-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin: 0.6rem 0 0.2rem; }
+@media (max-width: 600px) { .carbooking-analyze-grid { grid-template-columns: 1fr; } }
+.carbooking-analyze-card { border: 1px solid var(--cb-border, #e4e7ec); border-radius: 12px; padding: 0.8rem; background: var(--cb-surface, #fff); }
+.carbooking-analyze-card.is-new { border-color: #4263eb; box-shadow: 0 0 0 1px rgba(66,99,235,0.25); }
+.carbooking-analyze-card__tag { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: #475467; margin-bottom: 0.4rem; }
+.carbooking-analyze-card.is-new .carbooking-analyze-card__tag { color: #3b5bdb; }
+.carbooking-analyze-card__actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
